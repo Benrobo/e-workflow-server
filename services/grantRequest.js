@@ -5,7 +5,7 @@ export default class GrantRequest {
     // logged In users
     officerRegisterationApproved(res, data) {
         if (res === "" || res === undefined || res === null) {
-            return "officerAuth requires a valid {res} object but got none"
+            return "user registeration to be approved requires a valid {res} object but got none"
         }
 
         if (data && Object.entries(data).length > 0) {
@@ -41,11 +41,11 @@ export default class GrantRequest {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
-                            return util.sendJson(res, { error: false, message: "officer successfully approved." }, 200)
+                            return util.sendJson(res, { error: false, message: "user successfully approved." }, 200)
                         })
                     }
 
-                    return util.sendJson(res, { error: false, message: "officer has been approved already." }, 200)
+                    return util.sendJson(res, { error: false, message: "user has been approved already." }, 200)
 
                 })
             } catch (err) {
@@ -57,7 +57,7 @@ export default class GrantRequest {
 
     officerRegisterationReject(res, data) {
         if (res === "" || res === undefined || res === null) {
-            return "officerAuth requires a valid {res} object but got none"
+            return "user registeration to be approved requires a valid {res} object but got none"
         }
 
         if (data && Object.entries(data).length > 0) {
@@ -76,7 +76,7 @@ export default class GrantRequest {
                     }
 
                     if (result.rowCount === 0) {
-                        return util.sendJson(res, { error: true, message: "officer with that ID dont exists" }, 404)
+                        return util.sendJson(res, { error: true, message: "user with that ID dont exists" }, 404)
                     }
 
                     // if (result.rows[0].userRole === "user") {
@@ -93,7 +93,7 @@ export default class GrantRequest {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
-                            return util.sendJson(res, { error: false, message: "officer status has been set to pending." }, 200)
+                            return util.sendJson(res, { error: false, message: "user status has been set to pending." }, 200)
                         })
                     }
 
