@@ -5,7 +5,7 @@ import sendMail from "../services/sendMail.js"
 
 
 
-export const mailSender = (API_ROUTE.sendMail, checkAuth, (req, res) => {
+export const mailSender = router.post(API_ROUTE.sendMail, checkAuth, (req, res) => {
     try {
         let data = req.body;
         if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
