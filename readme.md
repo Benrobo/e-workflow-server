@@ -44,10 +44,13 @@ This are the curated list of backend logic yet to be implemented.
 
 - [x] Authication.
   - [x] register admin.
-  - [ ] generate ontime code for each user who wanna get them selves registered into the system.
-  - [ ] send the one time code to the `staff` mail address using `node_mailer`.
-  - [ ] validate staff request data sent from client including the code.
-  - [ ] save staff data in `postgresqlDB`
+  - [x] generate ontime code for each user who wanna get them selves registered into the system.
+  - [x] send the one time code to the `staff` mail address using `node_mailer`.
+  - [x] validate staff request data sent from client including the code.
+  - [x] save staff data in `postgresqlDB`
 - [x] Authorization.
   - [x] generate a `jwt_refresh_token` && `jwt_acccess_token` containing users details.
   - [x] send generated token to client which would then be used in `route` protection.
+- [x] Documents.
+  - [ ] Enable submission of documents from `students`
+  - [ ] Set `staff` reviews permissions.
