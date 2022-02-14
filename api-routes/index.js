@@ -7,6 +7,7 @@ const API_ROUTE = {
     approveRegRequest: "/api/users/request/registeration",
     rejectRegRequest: "/api/users/request/registeration/reject",
     createCode: "/api/code/generate",
+    sendMail: "/api/user/sendMail",
 }
 
 export default API_ROUTE;

@@ -5,7 +5,7 @@ import cors from "cors"
 import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js"
 import createCode from "./routes/generateCode.js"
 import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js"
-
+import { mailSender } from "./routes/sendMail.js"
 dotenv.config();
 // main middlewares
 app.use(cors());
@@ -31,8 +31,9 @@ app.get("/", (req, res) => {
 
 app.use(registerUser);
 app.use(registerAdmin);
-app.use(createCode);
 app.use(logInUsers);
+app.use(createCode);
+app.use(mailSender);
 app.use(approveRegRequest);
 app.use(rejectRegRequest);
 

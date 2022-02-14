@@ -2,4 +2,6 @@
 
 test.js
 
+.env
+
 /helpers/queries.js
