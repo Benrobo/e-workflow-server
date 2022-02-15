@@ -24,7 +24,6 @@
 2. CREATE TABLE "groups"(
     id TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "courseType" TEXT NOT NULL,
     "courseName" TEXT NOT NULL,
     "usersId" TEXT [] NOT NULL,
     "created_at" TEXT NOT NULL
