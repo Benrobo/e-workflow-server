@@ -15,7 +15,7 @@ export const mailSender = router.post(API_ROUTE.sendMail, checkAuth, (req, res) 
             return util.sendJson(res, { message: "authentication required a valid payload but got none" }, 404)
         }
 
-        return sendMail(res, "E-workflow: babcock-university", "alumonabenaiah71@gmail.com", data)
+        return sendMail(res, data)
     } catch (err) {
         return util.sendJson(res, { message: err.message }, 500)
     }
