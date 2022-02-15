@@ -5,9 +5,9 @@ dotenv.config()
 
 
 
-export default function sendMail(res, from, to, payload = {}) {
+export default function sendMail(res, payload = {}) {
 
-    if (from === undefined || to === undefined) {
+    if (payload.from === undefined || payload.to === undefined) {
         return util.sendJson(res, { error: true, message: "Failed to send mail, [ftom, to, payload] params might be missing" }, 400)
     }
 
@@ -28,14 +28,14 @@ export default function sendMail(res, from, to, payload = {}) {
         return util.sendJson(res, { error: true, message: "Failed to send mail, empty payload" }, 400)
     }
 
-    if (from === "") {
+    if (payload.from === "") {
         return util.sendJson(res, { error: true, message: "Failed to send mail, from is empty" }, 400)
     }
-    if (to === "") {
+    if (payload.to === "") {
         return util.sendJson(res, { error: true, message: "Failed to send mail, to is empty" }, 400)
     }
 
-    const { subject, body } = payload
+    const { from, to, subject, body } = payload
 
 
     let transporter = nodemailer.createTransport({
