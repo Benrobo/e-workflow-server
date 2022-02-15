@@ -3,11 +3,7 @@ import { db, util } from "../helpers/global.js"
 /**
  * 
  * {
-    "studentId": "62447136-30c3-4f72-a36e-0c638d217c0d",
-    "usersId": [
-        "sdcdscdsc",
-        "sdcsdcdsc"
-    ],
+    "studentId": "ace32d77-4607-47ed-999a-f1ecb4c2f4f2",
     "name": "Group Amazon",
     "courseName": "Intro to Operating System",
     "courseType": "Computer Science"
@@ -22,14 +18,11 @@ export default class Group {
         }
 
         if (payload && Object.entries(payload).length > 0) {
-            if (payload.studentId === undefined || payload.usersId === undefined || payload.name === undefined || payload.courseName === undefined || payload.courseType === undefined) {
-                return util.sendJson(res, { error: true, message: "payload requires a valid fields [studentId, usersId,name,courseName,courseType] but got undefined" }, 400)
+            if (payload.studentId === undefined || payload.name === undefined || payload.courseName === undefined || payload.courseType === undefined) {
+                return util.sendJson(res, { error: true, message: "payload requires a valid fields [studentId,name,courseName,courseType] but got undefined" }, 400)
             }
             if (payload.studentId === "") {
                 return util.sendJson(res, { error: true, message: "studentId cant be empty" }, 400)
-            }
-            if (payload.usersId.length === 0) {
-                return util.sendJson(res, { error: true, message: "group users cant be empty" }, 400)
             }
             if (payload.name === "") {
                 return util.sendJson(res, { error: true, message: "group name cant be empty" }, 400)
@@ -43,40 +36,23 @@ export default class Group {
 
             // check if user exist
             try {
-                const sql = `SELECT * FROM users WHERE mail=$1`
-                db.query(sql, [data.email], (err, result) => {
+                const sql = `SELECT * FROM users WHERE "userId"=$1`
+                db.query(sql, [payload.studentId], (err, result) => {
                     if (err) {
                         return util.sendJson(res, { error: true, message: err.message }, 400)
                     }
 
                     if (result.rowCount === 0) {
-                        return util.sendJson(res, { error: false, message: "user with that email dont exists" }, 404)
+                        return util.sendJson(res, { error: false, message: "user with that id dont exists: " + payload.studentId }, 404)
                     }
 
-                    // verify password
-                    if (util.compareHash(data.password, result.rows[0].hash) === false) {
-                        return util.sendJson(res, { error: false, message: "password given is incorrect" }, 403)
-                    }
+                    // create group info
+                    const { name, courseName, courseType, studentId } = payload;
+                    const id = util.genId()
+                    const date = util.formatDate()
 
-                    // update data
-                    const tokenPayload = {
-                        id: result.rows[0].userId,
-                        type: result.rows[0].userType,
-                        role: result.rows[0].userRole,
-                        status: result.rows[0].userStatus,
-                    }
-                    const refreshToken = util.genRefreshToken(tokenPayload)
-                    // const accessToken = util.genAccessToken(tokenPayload)
-                    const sql2 = `UPDATE users SET "refreshToken"=$1 WHERE mail=$2`
-                    db.query(sql2, [refreshToken, data.email], (err) => {
-                        if (err) {
-                            return util.sendJson(res, { error: true, message: err.message }, 400)
-                        }
-
-                        tokenPayload["refreshToken"] = refreshToken;
-
-                        return util.sendJson(res, { error: false, message: "user loggedIn succesfully.", data: [tokenPayload] }, 200)
-                    })
+                    let sql2 = `INSERT INTO groups(id, name, "courseType", "courseName","usersId","created_at") VALUES($1,$2,$3,$4,$5,$6)`
+                    db.query(sql2, [id, name, courseType, courseName, Array(studentId)])
                 })
             } catch (err) {
                 console.log(err);
