@@ -9,6 +9,7 @@ const API_ROUTE = {
     createCode: "/api/code/generate",
     sendMail: "/api/user/sendMail",
     createGroup: "/api/user/groups/create",
+    addGroupMembers: "/api/user/groups/addMembers",
     editGroup: "/api/user/groups/edit",
     deleteGroup: "/api/user/groups/delete",
     addDocument: "/api/user/documents/add",
