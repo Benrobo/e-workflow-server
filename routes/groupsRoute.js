@@ -21,6 +21,22 @@ export const createGroup = router.post(API_ROUTE.createGroup, checkAuth, (req, r
     }
 })
 
+export const addMembers = router.post(API_ROUTE.addGroupMembers, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "adding of members to a group require a valid payload but got none" }, 404)
+        }
+
+        return GROUP.addMembers(res, data)
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
 export const editGroup = router.post(API_ROUTE.createGroup, checkAuth, (req, res) => {
     try {
         let data = req.body;
