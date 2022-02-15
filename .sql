@@ -47,8 +47,7 @@
 
 4. CREATE TABLE "docFeedback"(
     "note" TEXT NOT NULL,
-    "courseType" TEXT NOT NULL,
-    "courseName" TEXT NOT NULL,
+    "documentId" TEXT NOT NULL,
     "groupId" TEXT NOT NULL,
     "staffId" TEXT NOT NULL,
     "created_at" TEXT NOT NULL
