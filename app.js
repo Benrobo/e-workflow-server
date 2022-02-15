@@ -6,6 +6,8 @@ import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js"
 import createCode from "./routes/generateCode.js"
 import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js"
 import { mailSender } from "./routes/sendMail.js"
+import { createGroup, editGroup, deleteGroup } from "./routes/groupsRoute.js"
+
 dotenv.config();
 // main middlewares
 app.use(cors());
@@ -36,6 +38,9 @@ app.use(createCode);
 app.use(mailSender);
 app.use(approveRegRequest);
 app.use(rejectRegRequest);
+app.use(createGroup);
+app.use(editGroup);
+app.use(deleteGroup);
 
 // listen on a htp port to run and start the server
 const PORT = process.env.PORT || 5000;
