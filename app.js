@@ -6,7 +6,7 @@ import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js"
 import createCode from "./routes/generateCode.js"
 import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js"
 import { mailSender } from "./routes/sendMail.js"
-import { createGroup, editGroup, deleteGroup } from "./routes/groupsRoute.js"
+import { createGroup, addMembers, editGroup, deleteGroup } from "./routes/groupsRoute.js"
 
 dotenv.config();
 // main middlewares
@@ -39,6 +39,7 @@ app.use(mailSender);
 app.use(approveRegRequest);
 app.use(rejectRegRequest);
 app.use(createGroup);
+app.use(addMembers);
 app.use(editGroup);
 app.use(deleteGroup);
 
