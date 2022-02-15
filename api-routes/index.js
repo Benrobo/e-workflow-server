@@ -8,6 +8,12 @@ const API_ROUTE = {
     rejectRegRequest: "/api/users/request/registeration/reject",
     createCode: "/api/code/generate",
     sendMail: "/api/user/sendMail",
+    createGroup: "/api/user/groups/create",
+    editGroup: "/api/user/groups/edit",
+    deleteGroup: "/api/user/groups/delete",
+    addDocument: "/api/user/documents/add",
+    editDocument: "/api/user/documents/edit",
+    deleteDocument: "/api/user/documents/delete",
 }
 
 export default API_ROUTE;

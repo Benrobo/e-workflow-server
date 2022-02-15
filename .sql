@@ -19,12 +19,25 @@
     "joined" TEXT NOT NULL -- Date from moment
 );
 
-2. CREATE TABLE "documents"(
+
+
+2. CREATE TABLE "groups"(
+    id TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "courseType" TEXT NOT NULL,
+    "courseName" TEXT NOT NULL,
+    "usersId" TEXT [] NOT NULL,
+    "created_at" TEXT NOT NULL
+);
+
+
+
+3. CREATE TABLE "documents"(
     id TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "courseType" TEXT NOT NULL,
     "courseName" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
+    "groupId" TEXT NOT NULL,
     "staffId" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "file" TEXT NOT NULL,
@@ -32,7 +45,16 @@
 );
 
 
-3. CREATE TABLE "codes"(
+4. CREATE TABLE "docFeedback"(
+    "note" TEXT NOT NULL,
+    "courseType" TEXT NOT NULL,
+    "courseName" TEXT NOT NULL,
+    "groupId" TEXT NOT NULL,
+    "staffId" TEXT NOT NULL,
+    "created_at" TEXT NOT NULL
+);
+
+5. CREATE TABLE "codes"(
     "userId" TEXT NOT NULL,
     "token" TEXT NOT NULL,
     "issued_at" TEXT NOT NULL

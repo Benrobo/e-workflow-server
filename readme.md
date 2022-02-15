@@ -51,6 +51,9 @@ This are the curated list of backend logic yet to be implemented.
 - [x] Authorization.
   - [x] generate a `jwt_refresh_token` && `jwt_acccess_token` containing users details.
   - [x] send generated token to client which would then be used in `route` protection.
+- [x] Groups
+  - [ ] Students are able to create different groups for documents submission.
 - [x] Documents.
-  - [ ] Enable submission of documents from `students`
+  - [ ] Enable submission of documents from `students groups`
   - [ ] Set `staff` reviews permissions.
+  - [ ] Each submitted documents would be able to have feedbacks from individual staffs.
