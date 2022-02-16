@@ -181,7 +181,21 @@ export default class Group {
     }
 
     edit(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "group creation requires a valid {res} object but got none"
+        }
 
+        if (payload && Object.entries(payload).length > 0) {
+
+
+            // check if user exist
+            try {
+
+            } catch (err) {
+                console.log(err);
+                return util.sendJson(res, { error: false, message: err.message }, 500)
+            }
+        }
     }
 
     delete(res, payload) {
