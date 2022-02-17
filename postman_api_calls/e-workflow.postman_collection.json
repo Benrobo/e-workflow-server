@@ -536,7 +536,7 @@
 			"response": []
 		},
 		{
-			"name": "addDocument",
+			"name": "addFYPDocument",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -549,6 +549,43 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"946f6a57-b82a-4566-9ad3-318a6b6b2422\",\r\n    \"title\": \"Just course form 2\",\r\n    \"documentType\": \"FYP\",\r\n    \"courseName\": \"Intro to computer sci\",\r\n    \"courseType\": \"Computer Science\",\r\n    \"staffId\": \"0504a303-46d2-48b3-b55d-51782eed4199\",\r\n    \"file\": {\r\n        \"type\": \"pdf\",\r\n        \"data\": \"34543rt43rtr43r43r\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/user/documents/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"user",
+						"documents",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addCFDocuments",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"title\": \"Just course form 2.5\",\r\n    \"documentType\": \"CF\",\r\n    \"courseName\": \"Intro to computer sci\",\r\n    \"courseType\": \"Computer Science\",\r\n    \"staffId\": \"0504a303-46d2-48b3-b55d-51782eed4199\",\r\n    \"file\": {\r\n        \"type\": \"pdf\",\r\n        \"data\": \"34543rt43rtr43r43r\"\r\n    }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
