@@ -351,6 +351,117 @@
 			"response": []
 		},
 		{
+			"name": "editGroup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\",\r\n    \"name\": \"Group Amazon 2\",\r\n    \"courseName\": \"Intro to Operating System    \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/user/groups/edit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"user",
+						"groups",
+						"edit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteGroupMembers",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"memberId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/user/groups/deleteMemebers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"user",
+						"groups",
+						"deleteMemebers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteGroup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/user/groups/deleteGroup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"user",
+						"groups",
+						"deleteGroup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "getUsersID",
 			"request": {
 				"method": "GET",
