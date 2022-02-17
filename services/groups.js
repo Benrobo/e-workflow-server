@@ -81,7 +81,7 @@ export default class Group {
 
     addMembers(res, payload) {
         if (res === "" || res === undefined || res === null) {
-            return "group creation requires a valid {res} object but got none"
+            return "adding of members requires a valid {res} object but got none"
         }
 
         if (payload && Object.entries(payload).length > 0) {
@@ -172,7 +172,7 @@ export default class Group {
 
     editGroup(res, payload) {
         if (res === "" || res === undefined || res === null) {
-            return "group creation requires a valid {res} object but got none"
+            return "editing of group requires a valid {res} object but got none"
         }
 
         if (payload && Object.entries(payload).length > 0) {
@@ -244,7 +244,7 @@ export default class Group {
 
     deleteMemebers(res, payload) {
         if (res === "" || res === undefined || res === null) {
-            return "group creation requires a valid {res} object but got none"
+            return "deleting of group members requires a valid {res} object but got none"
         }
 
         if (payload && Object.entries(payload).length > 0) {
@@ -317,7 +317,7 @@ export default class Group {
 
     deleteGroup(res, payload) {
         if (res === "" || res === undefined || res === null) {
-            return "group creation requires a valid {res} object but got none"
+            return "deleting of group requires a valid {res} object but got none"
         }
 
         if (payload && Object.entries(payload).length > 0) {

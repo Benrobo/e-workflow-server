@@ -6,6 +6,8 @@ const API_ROUTE = {
     logIn: "/api/auth/users/logIn",
     approveRegRequest: "/api/users/request/registeration",
     rejectRegRequest: "/api/users/request/registeration/reject",
+    setPermission: "/api/staff/permission/set",
+    changePermission: "/api/staff/permission/edit",
     createCode: "/api/code/generate",
     sendMail: "/api/user/sendMail",
     createGroup: "/api/user/groups/create",

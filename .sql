@@ -16,7 +16,8 @@
     "userRole" TEXT NOT NULL, -- student | staff | admin
     "userStatus" TEXT NOT NULL, -- pending | approved
     "refreshToken" TEXT NOT NULL,
-    "joined" TEXT NOT NULL -- Date from moment
+    "joined" TEXT NOT NULL, -- Date from moment
+    "documentPermissions" INT
 );
 
 

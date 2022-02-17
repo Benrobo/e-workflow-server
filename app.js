@@ -5,9 +5,13 @@ import cors from "cors"
 import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js"
 import createCode from "./routes/generateCode.js"
 import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js"
+import { setPermission } from "./routes/permissions.js"
 import { mailSender } from "./routes/sendMail.js"
 import { createGroup, addMembers, editGroup, deleteGroupMembers, deleteGroup } from "./routes/groupsRoute.js"
 import { addDocument } from "./routes/documentsRoute.js"
+
+
+
 dotenv.config();
 // main middlewares
 app.use(cors());
@@ -38,6 +42,9 @@ app.use(createCode);
 app.use(mailSender);
 app.use(approveRegRequest);
 app.use(rejectRegRequest);
+// staffs permissions
+app.use(setPermission);
+// student groups
 app.use(createGroup);
 app.use(addMembers);
 app.use(editGroup);

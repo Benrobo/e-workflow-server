@@ -277,6 +277,80 @@
 			"response": []
 		},
 		{
+			"name": "setPermissions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDgzMDQ0NCwiZXhwIjoxNjc2Mzg4MDQ0fQ.xcIE1z2QpFzYIqSsi-dl5AL8s3crifWq18IYiwI3ymk",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"b6226ecc-ff3f-4a39-91d2-56a13a869b1c\",\r\n    \"staffId\": \"ace32d77-4607-47ed-999a-f1ecb4c2f4f2\",\r\n    \"permissionLevel\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/staff/permission/set",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"staff",
+						"permission",
+						"set"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "changePermissions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDgzMDQ0NCwiZXhwIjoxNjc2Mzg4MDQ0fQ.xcIE1z2QpFzYIqSsi-dl5AL8s3crifWq18IYiwI3ymk",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/staff/permission/edit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"staff",
+						"permission",
+						"edit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "createGroup",
 			"request": {
 				"method": "POST",
@@ -289,7 +363,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"studentId\": \"ace32d77-4607-47ed-999a-f1ecb4c2f4f2\",\r\n    \"name\": \"Group Amazon       \",\r\n    \"courseName\": \"Intro to Operating System    \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
+					"raw": "{\r\n    \"studentId\": \"ace32d77-4607-47ed-999a-f1ecb4c2f4f2\",\r\n    \"name\": \"Group Jeff       \",\r\n    \"courseName\": \"Intro to System Admin   \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -456,6 +530,43 @@
 						"user",
 						"groups",
 						"deleteGroup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addDocument",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/user/documents/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"user",
+						"documents",
+						"add"
 					]
 				}
 			},

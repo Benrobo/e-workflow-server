@@ -50,7 +50,7 @@ export default class RegisterAuth {
                     }
 
                     // insert data
-                    const { userName, email, phoneNumber, password, type } = data
+                    const { userName, email, phoneNumber, password } = data
                     const id = util.genId()
                     const userId = util.genId()
                     const refreshToken = 0
@@ -58,8 +58,10 @@ export default class RegisterAuth {
                     const status = "pending"
                     const joined = util.formatDate()
                     const role = "user"
+                    let modifiedType = "student";
+
                     const sql2 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`
-                    db.query(sql2, [id, userId, userName, email, phoneNumber, hash, type, status, role, refreshToken, joined], (err, result) => {
+                    db.query(sql2, [id, userId, userName, email, phoneNumber, hash, modifiedType, status, role, refreshToken, joined], (err, result) => {
                         if (err) {
                             return util.sendJson(res, { error: true, message: err.message }, 400)
                         }
@@ -133,7 +135,7 @@ export default class RegisterAuth {
                         }
 
                         // insert data
-                        const { userName, email, phoneNumber, password, type } = data
+                        const { userName, email, phoneNumber, password } = data
                         const id = util.genId()
                         const userId = util.genId()
                         const refreshToken = 0
@@ -141,8 +143,11 @@ export default class RegisterAuth {
                         const status = "pending"
                         const joined = util.formatDate()
                         const role = "user"
-                        const sql3 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`
-                        db.query(sql3, [id, userId, userName, email, phoneNumber, hash, type, status, role, refreshToken, joined], (err, result) => {
+                        const permissionLevel = 1;
+                        let modifiedType = "staff";
+
+                        const sql3 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined","permissions") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`
+                        db.query(sql3, [id, userId, userName, email, phoneNumber, hash, modifiedType, status, role, refreshToken, joined, permissionLevel], (err, result) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
@@ -208,7 +213,7 @@ export default class RegisterAuth {
 
 
                     // insert data
-                    const { userName, email, phoneNumber, password, type } = data
+                    const { userName, email, phoneNumber, password } = data
                     const id = util.genId()
                     const userId = util.genId()
                     const refreshToken = 0
@@ -216,8 +221,11 @@ export default class RegisterAuth {
                     const status = "approved"
                     const joined = util.formatDate()
                     const role = "admin"
-                    const sql2 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`
-                    db.query(sql2, [id, userId, userName, email, phoneNumber, hash, type, status, role, refreshToken, joined], (err, result) => {
+                    const permissionLevel = 3;
+                    let modifiedType = "staff";
+
+                    const sql3 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined","permissions") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`
+                    db.query(sql3, [id, userId, userName, email, phoneNumber, hash, modifiedType, status, role, refreshToken, joined, permissionLevel], (err, result) => {
                         if (err) {
                             return util.sendJson(res, { error: true, message: err.message }, 400)
                         }
