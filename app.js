@@ -6,7 +6,7 @@ import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js"
 import createCode from "./routes/generateCode.js"
 import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js"
 import { mailSender } from "./routes/sendMail.js"
-import { createGroup, addMembers, editGroup, deleteGroup } from "./routes/groupsRoute.js"
+import { createGroup, addMembers, editGroup, deleteGroupMembers, deleteGroup } from "./routes/groupsRoute.js"
 
 dotenv.config();
 // main middlewares
@@ -41,6 +41,7 @@ app.use(rejectRegRequest);
 app.use(createGroup);
 app.use(addMembers);
 app.use(editGroup);
+app.use(deleteGroupMembers);
 app.use(deleteGroup);
 
 // listen on a htp port to run and start the server
