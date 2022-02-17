@@ -400,7 +400,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"membersId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\",\r\n    \"name\": \"Group Amazon\"\r\n}",
+					"raw": "{\r\n    \"membersId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"946f6a57-b82a-4566-9ad3-318a6b6b2422\",\r\n    \"name\": \"Group Amazon\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -548,7 +548,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\"\r\n}",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"946f6a57-b82a-4566-9ad3-318a6b6b2422\",\r\n    \"title\": \"Just course form 2\",\r\n    \"documentType\": \"FYP\",\r\n    \"courseName\": \"Intro to computer sci\",\r\n    \"courseType\": \"Computer Science\",\r\n    \"staffId\": \"0504a303-46d2-48b3-b55d-51782eed4199\",\r\n    \"file\": {\r\n        \"type\": \"pdf\",\r\n        \"data\": \"34543rt43rtr43r43r\"\r\n    }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

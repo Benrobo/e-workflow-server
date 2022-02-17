@@ -15,7 +15,19 @@ export const addDocument = router.post(API_ROUTE.addDocument, checkAuth, (req, r
             return util.sendJson(res, { message: "submitting of document require a valid payload but got none" }, 404)
         }
 
-        return DOCUMENT.add(res, data)
+        // where FYP -> [Final Year Project]
+        // where CF -> [ Course Form ]
+
+        if (data.documentType === "FYP") {
+            return DOCUMENT.addFYP(res, data)
+        }
+        else if (data.documentType === "CF") {
+            return DOCUMENT.addCF(res, data)
+        }
+        else {
+            return util.sendJson(res, { message: "failed submitting document: document type is invalid" }, 404)
+        }
+
     } catch (err) {
         return util.sendJson(res, { message: err.message }, 500)
     }
