@@ -8,6 +8,8 @@ const API_ROUTE = {
     rejectRegRequest: "/api/users/request/registeration/reject",
     setPermission: "/api/staff/permission/set",
     changePermission: "/api/staff/permission/edit",
+    getAllUsers: "/api/users/all",
+    getUsersById: "/api/users/id",
     createCode: "/api/code/generate",
     sendMail: "/api/user/sendMail",
     createGroup: "/api/user/groups/create",
@@ -18,6 +20,9 @@ const API_ROUTE = {
     addDocument: "/api/user/documents/add",
     editDocument: "/api/user/documents/edit",
     deleteDocument: "/api/user/documents/delete",
+    getAllDocs: "/api/documents/all",
+    getDocsById: "/api/documents/id",
+    getDocsGroupId: "/api/documents/groups/id",
 }
 
 export default API_ROUTE;

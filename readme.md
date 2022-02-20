@@ -54,6 +54,8 @@ This are the curated list of backend logic yet to be implemented.
 - [x] Groups
   - [ ] Students are able to create different groups for documents submission.
 - [x] Documents.
-  - [ ] Enable submission of documents from `students groups`
+  - [x] Enable submission of documents from `students / groups`
+  - [x] Enable updating of documents from `students / groups`
+  - [x] Enable deleting of documents from `students / groups`
   - [ ] Set `staff` reviews permissions.
   - [ ] Each submitted documents would be able to have feedbacks from individual staffs.

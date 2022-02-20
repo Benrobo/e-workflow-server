@@ -27,7 +27,7 @@
     "name" TEXT NOT NULL,
     "courseType" TEXT NOT NULL,
     "courseName" TEXT NOT NULL,
-    "usersId" TEXT [] NOT NULL,
+    "userId" TEXT NOT NULL,
     "created_at" TEXT NOT NULL
 );
 

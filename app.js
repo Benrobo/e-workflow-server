@@ -8,7 +8,7 @@ import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js"
 import { setPermission } from "./routes/permissions.js"
 import { mailSender } from "./routes/sendMail.js"
 import { createGroup, addMembers, editGroup, deleteGroupMembers, deleteGroup } from "./routes/groupsRoute.js"
-import { addDocument } from "./routes/documentsRoute.js"
+import { getAllDocs, getDocsId, addDocument, editDocument, deleteDocument } from "./routes/documentsRoute.js"
 
 
 
@@ -52,7 +52,12 @@ app.use(deleteGroupMembers);
 app.use(deleteGroup);
 
 // documents
+app.use(getAllDocs);
+app.use(getDocsId);
 app.use(addDocument);
+app.use(editDocument);
+app.use(deleteDocument);
+// app.use(addDocument);
 
 
 

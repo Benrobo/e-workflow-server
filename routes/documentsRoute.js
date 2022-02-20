@@ -5,6 +5,31 @@ import Document from "../services/documents.js"
 
 const DOCUMENT = new Document()
 
+export const getAllDocs = router.get(API_ROUTE.getAllDocs, (req, res) => {
+    try {
+        return DOCUMENT.allDocs(res)
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
+
+export const getDocsId = router.post(API_ROUTE.getDocsById, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "fetching all document require a valid payload but got none" }, 404)
+        }
+
+        return DOCUMENT.docsById(res, data)
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
 export const addDocument = router.post(API_ROUTE.addDocument, checkAuth, (req, res) => {
     try {
         let data = req.body;
@@ -33,30 +58,39 @@ export const addDocument = router.post(API_ROUTE.addDocument, checkAuth, (req, r
     }
 })
 
-export const editDocument = router.post(API_ROUTE.editDocument, checkAuth, (req, res) => {
+export const editDocument = router.put(API_ROUTE.editDocument, checkAuth, (req, res) => {
     try {
         let data = req.body;
         if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
             return util.sendJson(res, { message: "failed: payload is required" }, 400)
         }
         if (Object.entries(data).length === 0) {
-            return util.sendJson(res, { message: "submitting of document require a valid payload but got none" }, 404)
+            return util.sendJson(res, { message: "editing of document require a valid payload but got none" }, 404)
         }
 
-        return DOCUMENT.edit(res, data)
+        if (data.documentType === "FYP") {
+            return DOCUMENT.editFYP(res, data)
+        }
+        else if (data.documentType === "CF") {
+            return DOCUMENT.editCF(res, data)
+        }
+        else {
+            return util.sendJson(res, { message: "failed editing document: document type is invalid" }, 404)
+        }
+
     } catch (err) {
         return util.sendJson(res, { message: err.message }, 500)
     }
 })
 
-export const deleteDocument = router.post(API_ROUTE.deleteDocument, checkAuth, (req, res) => {
+export const deleteDocument = router.delete(API_ROUTE.deleteDocument, checkAuth, (req, res) => {
     try {
         let data = req.body;
         if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
             return util.sendJson(res, { message: "failed: payload is required" }, 400)
         }
         if (Object.entries(data).length === 0) {
-            return util.sendJson(res, { message: "submitting of document require a valid payload but got none" }, 404)
+            return util.sendJson(res, { message: "deleting of document require a valid payload but got none" }, 404)
         }
 
         return DOCUMENT.delete(res, data)
