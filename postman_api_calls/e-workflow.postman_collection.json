@@ -105,7 +105,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\":\"ben@mail.com\",\r\n    \"password\": \"1234\"\r\n}",
+					"raw": "{\r\n    \"email\":\"peter@mail.com\",\r\n    \"password\": \"1234\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -363,7 +363,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"studentId\": \"ace32d77-4607-47ed-999a-f1ecb4c2f4f2\",\r\n    \"name\": \"Group Jeff       \",\r\n    \"courseName\": \"Intro to System Admin   \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
+					"raw": "{\r\n    \"studentId\": \"09b21263-f605-4d57-9913-8b5c884e0cc4\",\r\n    \"name\": \"Group Jeff       \",\r\n    \"courseName\": \"Intro to System Admin   \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -400,7 +400,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"membersId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"946f6a57-b82a-4566-9ad3-318a6b6b2422\",\r\n    \"name\": \"Group Amazon\"\r\n}",
+					"raw": "{\r\n    \"memberId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"90dbbffd-dc38-4676-9d56-95dac4fa6088\",\r\n    \"courseName\": \"Intro to System Admin   \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -536,6 +536,69 @@
 			"response": []
 		},
 		{
+			"name": "getAllDocs",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/documents/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"documents",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getDocsById",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"documentId\": \"73d3e2a4-6200-478f-9545-a735457c2489\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/documents/id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"documents",
+						"id"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "addFYPDocument",
 			"request": {
 				"method": "POST",
@@ -573,6 +636,43 @@
 			"response": []
 		},
 		{
+			"name": "editFYPDocument",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"946f6a57-b82a-4566-9ad3-318a6b6b2422\",\r\n    \"documentId\": \" 0e7b41cb-a15e-4a6c-96cf-b7f63babd601\",\r\n    \"title\": \"Just course form updated\",\r\n    \"documentType\": \"FYP\",\r\n    \"courseName\": \"Intro to computer sci\",\r\n    \"courseType\": \"Computer Science\",\r\n    \"staffId\": \"0504a303-46d2-48b3-b55d-51782eed4199\",\r\n    \"changeFile\": false,\r\n    \"file\": {\r\n        \"type\": \"pdf\",\r\n        \"data\": \"sdcdsvdwsvsdvsdvdsvdsvwertfwertf5435\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/user/documents/edit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"user",
+						"documents",
+						"edit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "addCFDocuments",
 			"request": {
 				"method": "POST",
@@ -604,6 +704,80 @@
 						"user",
 						"documents",
 						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "editCFDocument",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"documentId\": \"69910955-90c9-4f8d-9c2a-458a80311e79\",\r\n    \"title\": \"Just course form CF\",\r\n    \"documentType\": \"CF\",\r\n    \"courseName\": \"Intro to computer sci\",\r\n    \"courseType\": \"Computer Science\",\r\n    \"staffId\": \"0504a303-46d2-48b3-b55d-51782eed4199\",\r\n    \"changeFile\": false,\r\n    \"file\": {\r\n        \"type\": \"pdf\",\r\n        \"data\": \"34543rt43rtr43r43r\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/user/documents/edit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"user",
+						"documents",
+						"edit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteDocument",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjZTMyZDc3LTQ2MDctNDdlZC05OTlhLWYxZWNiNGMyZjRmMiIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoicGVuZGluZyIsImlhdCI6MTY0NDkwNTc4NSwiZXhwIjoxNjc2NDYzMzg1fQ.I3ODaCBSKD7Vqg4MfY3ltj8vcFBuKnW44L-Up4oi5xM",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"documentId\": \"0e7b41cb-a15e-4a6c-96cf-b7f63babd601\",\r\n    \"documentType\": \"FYP\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/user/documents/delete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"user",
+						"documents",
+						"delete"
 					]
 				}
 			},
