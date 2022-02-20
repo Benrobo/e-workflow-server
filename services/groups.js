@@ -50,7 +50,7 @@ export default class Group {
                         }
 
                         if (data1.rowCount > 0) {
-                            return util.sendJson(res, { error: true, message: `failed to create group: you belong to ${data1.rows[0].name}` }, 403)
+                            return util.sendJson(res, { error: true, message: `failed to create group: [${data1.rows[0].name}] already exist` }, 403)
                         }
 
                         // create group info
@@ -114,9 +114,8 @@ export default class Group {
                         }
 
                         // 3. check if group exists;
-
-                        const sql3 = `SELECT * FROM groups WHERE id=$1`
-                        db.query(sql3, [payload.groupId.trim()], (err, data2) => {
+                        const sql3 = `SELECT * FROM groups WHERE id=$1 AND "userId"=$2`
+                        db.query(sql3, [payload.groupId.trim(), payload.memberId.trim()], (err, data2) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
@@ -132,21 +131,17 @@ export default class Group {
                                 if (err) {
                                     return util.sendJson(res, { error: true, message: err.message }, 400)
                                 }
-
-                                return res.json({data: data3.rowCount, gid: payload.groupId, mid: payload.memberId})
-
                                 if (data3.rowCount > 0) {
                                     return util.sendJson(res, { error: false, message: `failed to add members to [${data2.rows[0].name}]: member already exist ` }, 400)
                                 }
 
                                 // add member to group
-                                const { courseName, courseType, memberId } = payload;
-                                const id = util.genId()
+                                const { courseName, courseType, memberId, groupId } = payload;
                                 const date = util.formatDate()
                                 const groupName = data2.rows[0].name
 
                                 let sql5 = `INSERT INTO groups(id, name, "courseType", "courseName","userId","created_at") VALUES($1, $2, $3, $4, $5, $6)`
-                                db.query(sql5, [id, groupName.trim(), courseType.trim(), courseName.trim(), memberId.trim(), date.trim()], (err) => {
+                                db.query(sql5, [groupId.trim(), groupName.trim(), courseType.trim(), courseName.trim(), memberId.trim(), date.trim()], (err) => {
                                     if (err) {
                                         return util.sendJson(res, { error: true, message: err.message }, 400)
                                     }
@@ -197,35 +192,40 @@ export default class Group {
                         return util.sendJson(res, { error: false, message: "user with that id dont exists: " + payload.userId }, 404)
                     }
 
-                    // check if user already exist in a group before creating editing group info
+                    // check if user already exist in a group before editing group info
                     const sql2 = `SELECT * FROM groups WHERE id=$1`
-                    db.query(sql2, [payload.groupId], (err, data1) => {
+                    db.query(sql2, [payload.groupId.trim()], (err, data1) => {
                         if (err) {
                             return util.sendJson(res, { error: true, message: err.message }, 400)
                         }
 
-                        if (data1.rows.length === 0) {
+                        if (data1.rowCount === 0) {
                             return util.sendJson(res, { error: false, message: `fail to edit group, no group found` }, 404)
                         }
 
-                        let membersIds = data1.rows[0].usersId;
+                        // check if user belong to that group
 
-                        // check if userid trying to edit group detail is present
-                        if (membersIds.includes(payload.userId) === false) {
-                            return util.sendJson(res, { error: false, message: `cant edit group you dont belong to` }, 404)
-                        }
-
-                        const { name, courseName, courseType, groupId } = payload;
-
-                        const sql3 = `UPDATE groups SET "courseName"=$1, "courseType"=$2, "name"=$3 WHERE id=$4`
-                        db.query(sql3, [courseName.trim(), courseType.trim(), name.trim(), groupId.trim()], (err) => {
+                        const sql3 = `SELECT * FROM groups WHERE id=$1 AND "userId"=$2`
+                        db.query(sql3, [payload.groupId.trim(), payload.userId.trim()], (err, data2) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
-                            return util.sendJson(res, { error: false, message: "successfully edited group info" }, 200)
-                        })
+                            if (data2.rowCount === 0) {
+                                return util.sendJson(res, { error: false, message: `cant edit group you dont belong to` }, 404)
+                            }
 
+                            const { name, courseName, courseType, groupId } = payload;
+
+                            const sql3 = `UPDATE groups SET "courseName"=$1, "courseType"=$2, "name"=$3 WHERE id=$4`
+                            db.query(sql3, [courseName.trim(), courseType.trim(), name.trim(), groupId.trim()], (err) => {
+                                if (err) {
+                                    return util.sendJson(res, { error: true, message: err.message }, 400)
+                                }
+
+                                return util.sendJson(res, { error: false, message: "successfully edited group info" }, 200)
+                            })
+                        })
                     })
                 })
 
@@ -256,49 +256,50 @@ export default class Group {
             }
             // check if user exist
             try {
-                const sql = `SELECT * FROM users WHERE "userId"=$1 AND "userId"=$2`
-                db.query(sql, [payload.userId, payload.memberId], (err, result) => {
+                const sql = `SELECT * FROM users WHERE "userId"=$1 OR "userId"=$2`
+                db.query(sql, [payload.userId.trim(), payload.memberId.trim()], (err, result) => {
                     if (err) {
                         return util.sendJson(res, { error: true, message: err.message }, 400)
                     }
 
-                    if (result.rowCount === 0) {
-                        return util.sendJson(res, { error: false, message: "user with that id dont exists: " + payload.userId }, 404)
+
+                    if (result.rowCount === 0 || result.rowCount === 1) {
+                        return util.sendJson(res, { error: false, message: `either you or member doesnt exist` }, 404)
                     }
 
-                    // check if user already exist in a group before creating editing group info
+                    // check if user already exist in a group before deleting group members
                     const sql2 = `SELECT * FROM groups WHERE id=$1`
-                    db.query(sql2, [payload.groupId], (err, data1) => {
+                    db.query(sql2, [payload.groupId.trim()], (err, data1) => {
                         if (err) {
                             return util.sendJson(res, { error: true, message: err.message }, 400)
                         }
 
-                        if (data1.rows.length === 0) {
-                            return util.sendJson(res, { error: false, message: `fail to edit group, no group found` }, 404)
+                        if (data1.rowCount === 0) {
+                            return util.sendJson(res, { error: false, message: `fail to delete group members, no group found` }, 404)
                         }
-
-                        let membersIds = data1.rows[0].usersId;
 
                         // check if userid trying to delete group member detail is present
-                        if (membersIds.includes(payload.userId) === false || membersIds.includes(payload.memberId) === false) {
-                            return util.sendJson(res, { error: false, message: `cant delete group members: cause member doesnt exists` }, 404)
-                        }
-
-                        let restMembers = membersIds.filter((list) => {
-                            return list !== payload.memberId
-                        })
-
-                        const { groupId } = payload;
-
-                        const sql3 = `UPDATE groups SET "usersId"=$1 WHERE id=$2`
-                        db.query(sql3, [restMembers, groupId.trim()], (err) => {
+                        const sql3 = `SELECT * FROM groups WHERE id=$1 AND "userId"=$2`
+                        db.query(sql3, [payload.groupId.trim(), payload.memberId.trim()], (err, data2) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
-                            return util.sendJson(res, { error: false, message: "successfully deleted group member" }, 200)
-                        })
+                            if (data2.rowCount === 0) {
+                                return util.sendJson(res, { error: false, message: `cant delete group members: cause member doesnt exists` }, 404)
+                            }
 
+                            const { groupId, memberId } = payload;
+
+                            const sql3 = `DELETE FROM groups WHERE id=$1 AND "userId"=$2`
+                            db.query(sql3, [groupId.trim(), memberId.trim()], (err) => {
+                                if (err) {
+                                    return util.sendJson(res, { error: true, message: err.message }, 400)
+                                }
+
+                                return util.sendJson(res, { error: false, message: "successfully deleted group member" }, 200)
+                            })
+                        })
                     })
                 })
 
@@ -337,8 +338,8 @@ export default class Group {
                     }
 
                     // check if user already exist in a group before creating editing group info
-                    const sql2 = `SELECT * FROM groups WHERE id=$1`
-                    db.query(sql2, [payload.groupId], (err, data1) => {
+                    const sql2 = `SELECT * FROM groups WHERE id=$1 AND "userId"=$2`
+                    db.query(sql2, [payload.groupId.trim(), payload.userId.trim()], (err, data1) => {
                         if (err) {
                             return util.sendJson(res, { error: true, message: err.message }, 400)
                         }
@@ -347,13 +348,7 @@ export default class Group {
                             return util.sendJson(res, { error: false, message: `fail to delete group, you dont belong to the group id provided` }, 404)
                         }
 
-                        let membersIds = data1.rows[0].usersId;
-
-                        // check if userid trying to delete group member detail is present
-                        if (membersIds.includes(payload.userId) === false) {
-                            return util.sendJson(res, { error: false, message: `cant delete group members: cause member doesnt exists` }, 404)
-                        }
-
+                        
                         const { groupId } = payload;
 
                         const sql3 = `DELETE FROM groups WHERE id=$1`
