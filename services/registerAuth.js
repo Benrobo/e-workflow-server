@@ -146,7 +146,7 @@ export default class RegisterAuth {
                         const permissionLevel = 1;
                         let modifiedType = "staff";
 
-                        const sql3 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined","permissions") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`
+                        const sql3 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined","documentPermissions") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`
                         db.query(sql3, [id, userId, userName, email, phoneNumber, hash, modifiedType, status, role, refreshToken, joined, permissionLevel], (err, result) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
@@ -224,7 +224,7 @@ export default class RegisterAuth {
                     const permissionLevel = 3;
                     let modifiedType = "staff";
 
-                    const sql3 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined","permissions") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`
+                    const sql3 = `INSERT INTO users(id, "userId", "userName","mail","phoneNumber",hash,"type","userStatus", "userRole","refreshToken","joined","documentPermissions") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`
                     db.query(sql3, [id, userId, userName, email, phoneNumber, hash, modifiedType, status, role, refreshToken, joined, permissionLevel], (err, result) => {
                         if (err) {
                             return util.sendJson(res, { error: true, message: err.message }, 400)

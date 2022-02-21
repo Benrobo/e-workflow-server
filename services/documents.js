@@ -46,32 +46,42 @@ export default class Document {
             // check if user exist
             try {
                 const sql = `SELECT * FROM documents WHERE documents.id=$1 `
-                db.query(sql, [payload.documentId.trim()], (err, result) => {
+                db.query(sql, [payload.documentId.trim()], async (err, result) => {
                     if (err) {
                         return util.sendJson(res, { error: true, message: err.message }, 400)
                     }
 
+                    let documentData = {}
                     let group = {}
                     let groupS = []
 
-                    // if (result.rows[0].groupId !== null) {
-                    //     // get groupData
-                    //     let groupId = result.rows[0].groupId;
-                    //     const sql2 = `SELECT * FROM groups WHERE id=$1`
-                    //     db.query(sql2, [groupId], (err, data1) => {
-                    //         if (err) {
-                    //             return util.sendJson(res, { error: true, message: err.message }, 400)
-                    //         }
 
+                    // return res.json(result.rows)
 
-                    //         data1.rows[0].name = "ben"
-                    //         groupS.push(group);
-                    //     })
-                    // }
+                    if (result.rowCount > 0 && result.rows[0].groupId !== null) {
+                        // get groupData
+                        let test = []
+                        let groupId = result.rows[0].groupId.trim();
+                        const sql2 = `SELECT * FROM groups WHERE id=$1`
+                        await db.query(sql2, [groupId], (err, data1) => {
+                            if (err) {
+                                return util.sendJson(res, { error: true, message: err.message }, 400)
+                            }
+
+                            test.push(data1.rows[0])
+                        })
+                        documentData["group"] = test
+                    }
+
+                    documentData["document"] = result.rows
 
                     // console.log(groupS);
+                    documentData["benrobo"] = [
+                        "dscsdc",
+                        "sdcdsc"
+                    ]
 
-                    return util.sendJson(res, { error: false, document: result.rows }, 200)
+                    return util.sendJson(res, { error: false, documentData }, 200)
                 })
             } catch (err) {
                 console.log(err);
@@ -236,52 +246,55 @@ export default class Document {
 
                         // check if group exists
                         const sql2 = `SELECT * FROM groups WHERE id=$1`
-                        db.query(sql2, [payload.groupId], (err, data2) => {
+                        db.query(sql2, [payload.groupId.trim()], (err, data2) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
                             if (data2.rowCount === 0) {
-                                return util.sendJson(res, { error: true, message: "the group your'e adding doesnt exists." }, 404)
+                                return util.sendJson(res, { error: true, message: "the group you added doesnt exists." }, 404)
                             }
 
                             // check if student/user trying to submit document for a specific group exist in that group
 
-                            const membersIds = data2.rows[0].usersId;
-
-                            if (membersIds.includes(payload.userId) === false) {
-                                return util.sendJson(res, { error: true, message: "fialed: cant submit document for a group you dont belong to." }, 403)
-                            }
-
-
-                            // check if document which the group is trying to submit already exists
-                            const sql3 = `SELECT * FROM documents WHERE "groupId"=$1 AND "documentType"=$2 AND title=$3 AND "courseType"=$4 AND "courseName"=$5`
-                            db.query(sql3, [payload.groupId, payload.documentType, payload.title, payload.courseType, payload.courseName], (err, data3) => {
+                            const sql3 = `SELECT * FROM groups WHERE id=$1 AND "userId"=$2`
+                            db.query(sql3, [payload.groupId.trim(), payload.userId.trim()], (err, data3) => {
                                 if (err) {
                                     return util.sendJson(res, { error: true, message: err.message }, 400)
                                 }
 
-                                if (data3.rowCount > 0) {
-                                    return util.sendJson(res, { error: true, message: "document youre trying to submit already exist." }, 200)
+                                if (data3.rowCount === 0) {
+                                    return util.sendJson(res, { error: true, message: "fialed: cant submit document for a group you dont belong to." }, 403)
                                 }
 
-                                // save document in database
-                                const { title, documentType, userId, groupId, staffId, courseName, courseType, file } = payload
-                                const fileData = file.data;
-                                const id = util.genId()
-                                const status = "pending"
-                                const date = util.formatDate()
-
-                                const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","groupId","staffId","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
-                                db.query(sql4, [id.trim(), title.trim(), documentType.trim(), courseType.trim(), courseName.trim(), userId.trim(), groupId.trim(), staffId.trim(), status.trim(), fileData.trim(), date.trim()], (err) => {
+                                // check if document which the group is trying to submit already exists
+                                const sql3 = `SELECT * FROM documents WHERE "groupId"=$1 AND "documentType"=$2 AND title=$3 AND "courseType"=$4 AND "courseName"=$5`
+                                db.query(sql3, [payload.groupId, payload.documentType, payload.title, payload.courseType, payload.courseName], (err, data4) => {
                                     if (err) {
                                         return util.sendJson(res, { error: true, message: err.message }, 400)
                                     }
 
-                                    return util.sendJson(res, { error: true, message: "document submitted successfully." }, 200)
+                                    if (data4.rowCount > 0) {
+                                        return util.sendJson(res, { error: true, message: "document youre trying to submit already exist." }, 200)
+                                    }
+
+                                    // save document in database
+                                    const { title, documentType, userId, groupId, staffId, courseName, courseType, file } = payload
+                                    const fileData = file.data;
+                                    const id = util.genId()
+                                    const status = "pending"
+                                    const date = util.formatDate()
+
+                                    const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","groupId","staffId","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
+                                    db.query(sql4, [id.trim(), title.trim(), documentType.trim(), courseType.trim(), courseName.trim(), userId.trim(), groupId.trim(), staffId.trim(), status.trim(), fileData.trim(), date.trim()], (err) => {
+                                        if (err) {
+                                            return util.sendJson(res, { error: true, message: err.message }, 400)
+                                        }
+
+                                        return util.sendJson(res, { error: true, message: "document submitted successfully." }, 200)
+                                    })
                                 })
                             })
-
                         })
                     })
                 })
