@@ -4,7 +4,7 @@ export function checkAuth(req, res, next) {
     let tokens = req.headers["authorization"];
 
     if (!tokens) {
-        return res.status(401).json({ msg: "Authorization header is required" })
+        return res.status(401).json({ message: "Authorization header is required" })
     }
     try {
         let bearer = tokens.split(" ")[1];
@@ -14,6 +14,6 @@ export function checkAuth(req, res, next) {
         next()
     } catch (e) {
         console.log(e)
-        return res.status(401).json({ msg: "Invalid token" })
+        return res.status(401).json({ messsage: "Invalid token" })
     }
 }

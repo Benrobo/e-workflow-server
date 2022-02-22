@@ -116,7 +116,7 @@ export function getTokens(res, data) {
 
 export function deleteToken(res, data) {
     if (res === "" || res === undefined || res === null) {
-        return "adding of case requires a valid {res} object but got none"
+        return "deleting tokens requires a valid {res} object but got none"
     }
 
     if (data && Object.entries(data).length > 0) {
@@ -134,7 +134,7 @@ export function deleteToken(res, data) {
         try {
             // check if user exist in db
             const q1 = `SELECT * FROM users WHERE "userId"=$1`
-            db.query(q1, [data.userId], (err, result) => {
+            db.query(q1, [data.userId.trim()], (err, result) => {
                 if (err) {
                     return util.sendJson(res, { error: true, message: err.message }, 400)
                 }
