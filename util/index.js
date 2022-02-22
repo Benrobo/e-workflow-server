@@ -26,10 +26,10 @@ class Util {
       return this.Error("Type Error: invalid date format");
     }
     if (!validFormats.includes(format)) {
-      return moment().startOf(validFormats[1]).fromNow();
+      return moment().format("MMM D YYYY, h:mm a");
     }
 
-    return moment().startOf(format).fromNow();
+    return moment().format("MMM D YYYY, h:mm a");
   }
 
   genAccessToken(payload) {
