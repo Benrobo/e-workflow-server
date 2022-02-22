@@ -105,7 +105,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\":\"peter@mail.com\",\r\n    \"password\": \"1234\"\r\n}",
+					"raw": "{\r\n    \"email\":\"ben@mail.com\",\r\n    \"password\": \"1234\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -130,7 +130,7 @@
 			"response": []
 		},
 		{
-			"name": "generateCode",
+			"name": "createToken",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -142,7 +142,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"b6226ecc-ff3f-4a39-91d2-56a13a869b1c\",\r\n    \"role\": \"admin\",\r\n    \"token\": \"190347\"\r\n}",
+					"raw": "{\r\n    \"userId\": \"b6226ecc-ff3f-4a39-91d2-56a13a869b1c\",\r\n    \"role\": \"admin\",\r\n    \"token\": \"120347\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -150,7 +150,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/code/generate",
+					"raw": "http://localhost:5000/api/token/generate",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -158,8 +158,80 @@
 					"port": "5000",
 					"path": [
 						"api",
-						"code",
+						"token",
 						"generate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getTokens",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI2MjI2ZWNjLWZmM2YtNGEzOS05MWQyLTU2YTEzYTg2OWIxYyIsInJvbGUiOiJhZG1pbiIsInN0YXR1cyI6ImFwcHJvdmVkIiwiaWF0IjoxNjQ1NDkwNTYyLCJleHAiOjE2NzcwNDgxNjJ9.P6VmU4V04M79EUH7jrpmG8mPECErk5kb30-OvsR4Wm4",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"b6226ecc-ff3f-4a39-91d2-56a13a869b1c\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/token/getToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"token",
+						"getToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteToken",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI2MjI2ZWNjLWZmM2YtNGEzOS05MWQyLTU2YTEzYTg2OWIxYyIsInJvbGUiOiJhZG1pbiIsInN0YXR1cyI6ImFwcHJvdmVkIiwiaWF0IjoxNjQ1NDkwNTYyLCJleHAiOjE2NzcwNDgxNjJ9.P6VmU4V04M79EUH7jrpmG8mPECErk5kb30-OvsR4Wm4",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"b6226ecc-ff3f-4a39-91d2-56a13a869b1c\",\r\n    \"token\": \"120347\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/token/deleteToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"token",
+						"deleteToken"
 					]
 				}
 			},
@@ -400,7 +472,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"memberId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"90dbbffd-dc38-4676-9d56-95dac4fa6088\",\r\n    \"courseName\": \"Intro to System Admin   \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
+					"raw": "{\r\n    \"memberId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"c81dea98-08c5-4b01-8327-eb8b1930d088\",\r\n    \"courseName\": \"Intro to System Admin   \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -437,7 +509,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\",\r\n    \"name\": \"Group Amazon 2\",\r\n    \"courseName\": \"Intro to Operating System    \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
+					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"c81dea98-08c5-4b01-8327-eb8b1930d088\",\r\n    \"name\": \"Group Amazon 2\",\r\n    \"courseName\": \"Intro to Operating System    \",\r\n    \"courseType\": \"Computer Science \"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -474,7 +546,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"memberId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\"\r\n}",
+					"raw": "{\r\n    \"userId\": \"09b21263-f605-4d57-9913-8b5c884e0cc4\",\r\n    \"memberId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"c81dea98-08c5-4b01-8327-eb8b1930d088\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -511,7 +583,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"38348124-7e25-4f0d-b924-f4a8580e50cb\"\r\n}",
+					"raw": "{\r\n    \"userId\": \"09b21263-f605-4d57-9913-8b5c884e0cc4\",\r\n   \"groupId\": \"c81dea98-08c5-4b01-8327-eb8b1930d088\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -575,7 +647,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"documentId\": \"73d3e2a4-6200-478f-9545-a735457c2489\"\r\n}",
+					"raw": "{\r\n    \"documentId\": \"76ea5edb-680a-4d49-867a-75cd12ad35a0\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -611,7 +683,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"userId\": \"e13e1224-2bad-4790-a2a3-6c9950215d8d\",\r\n    \"groupId\": \"946f6a57-b82a-4566-9ad3-318a6b6b2422\",\r\n    \"title\": \"Just course form 2\",\r\n    \"documentType\": \"FYP\",\r\n    \"courseName\": \"Intro to computer sci\",\r\n    \"courseType\": \"Computer Science\",\r\n    \"staffId\": \"0504a303-46d2-48b3-b55d-51782eed4199\",\r\n    \"file\": {\r\n        \"type\": \"pdf\",\r\n        \"data\": \"34543rt43rtr43r43r\"\r\n    }\r\n}",
+					"raw": "{\r\n    \"userId\": \"09b21263-f605-4d57-9913-8b5c884e0cc4\",\r\n    \"groupId\": \"56a5e5a8-7c35-4ee6-9d85-4dd916197130\",\r\n    \"title\": \"Just course form 2\",\r\n    \"documentType\": \"FYP\",\r\n    \"courseName\": \"Intro to computer sci\",\r\n    \"courseType\": \"Computer Science\",\r\n    \"staffId\": \"0504a303-46d2-48b3-b55d-51782eed4199\",\r\n    \"file\": {\r\n        \"type\": \"pdf\",\r\n        \"data\": \"34543rt43rtr43r43r\"\r\n    }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
