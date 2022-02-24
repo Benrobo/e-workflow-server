@@ -32,12 +32,12 @@ export default class LogInAuth {
                     }
 
                     if (result.rowCount === 0) {
-                        return util.sendJson(res, { error: false, message: "user with that email dont exists" }, 404)
+                        return util.sendJson(res, { error: true, message: "user with that email dont exists" }, 404)
                     }
 
                     // verify password
                     if (util.compareHash(data.password, result.rows[0].hash) === false) {
-                        return util.sendJson(res, { error: false, message: "password given is incorrect" }, 403)
+                        return util.sendJson(res, { error: true, message: "password given is incorrect" }, 403)
                     }
 
                     // update data
@@ -62,7 +62,7 @@ export default class LogInAuth {
                 })
             } catch (err) {
                 console.log(err);
-                return util.sendJson(res, { error: false, message: err.message }, 500)
+                return util.sendJson(res, { error: true, message: err.message }, 500)
             }
         }
     }
