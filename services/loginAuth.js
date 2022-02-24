@@ -45,6 +45,7 @@ export default class LogInAuth {
                         id: result.rows[0].userId,
                         type: result.rows[0].userType,
                         role: result.rows[0].userRole,
+                        type: result.rows[0].type,
                         status: result.rows[0].userStatus,
                     }
                     const refreshToken = util.genRefreshToken(tokenPayload)
