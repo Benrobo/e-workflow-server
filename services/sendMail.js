@@ -55,10 +55,11 @@ export default function sendMail(res, payload = {}) {
 
     try {
         transporter.sendMail(mailOptions, function (error, info) {
+            console.log(info, error)
             if (error) {
                 return util.sendJson(res, { error: true, message: error.message }, 400)
             } else {
-                return util.sendJson(res, { error: false, message: info.response }, 200)
+                return util.sendJson(res, { error: false, message: "message sent successfully" }, 200)
             }
         });
     } catch (err) {
