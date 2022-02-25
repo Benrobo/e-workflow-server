@@ -130,6 +130,72 @@
 			"response": []
 		},
 		{
+			"name": "getAllUsers",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllUsersById",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI2MjI2ZWNjLWZmM2YtNGEzOS05MWQyLTU2YTEzYTg2OWIxYyIsInR5cGUiOiJzdGFmZiIsInJvbGUiOiJhZG1pbiIsInN0YXR1cyI6ImFwcHJvdmVkIiwiaWF0IjoxNjQ1ODA0Mzc4LCJleHAiOjE2NzczNjE5Nzh9.O8d7oPsQByjVDzgJzknjof8XLafY72vI2akgKTQGpec",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"b6226ecc-ff3f-4a39-91d2-56a13a869b1c\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"id"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "createToken",
 			"request": {
 				"method": "POST",

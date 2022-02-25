@@ -3,6 +3,7 @@ import { app, PATH, FS, __dirname } from "./helpers/global.js"
 import bodyParser from "body-parser"
 import cors from "cors"
 import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js"
+import { getUsers, getUsersById } from "./routes/users.js"
 import { createToken, getAllToken, deleteSpecificToken } from "./routes/tokens.js"
 import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js"
 import { setPermission } from "./routes/permissions.js"
@@ -39,6 +40,10 @@ app.get("/", (req, res) => {
 app.use(registerUser);
 app.use(registerAdmin);
 app.use(logInUsers);
+
+// users
+app.use(getUsers)
+app.use(getUsersById)
 
 // Tokens
 app.use(createToken);
