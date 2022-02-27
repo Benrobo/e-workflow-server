@@ -2,6 +2,34 @@ import { db, util } from "../helpers/global.js"
 
 export default class Group {
 
+    allGroupsByUserId(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "fetching all groups requires a valid {res} object but got none"
+        }
+
+        if (payload.userId === undefined) {
+            return util.sendJson(res, { error: true, message: "payload requires a valid fields [userId] but got undefined" }, 400)
+        }
+
+        if (payload.userId === "") {
+            return util.sendJson(res, { error: true, message: "payload requires a valid userId but got empty" }, 400)
+        }
+
+        try {
+            const sql = `SELECT * FROM groups WHERE "userId"=$1`
+            db.query(sql, [payload.userId.trim()], (err, result) => {
+                if (err) {
+                    return util.sendJson(res, { error: true, message: err.message }, 400)
+                }
+
+                return util.sendJson(res, { error: false, data: result.rows }, 200)
+            })
+        } catch (err) {
+            console.log(err);
+            return util.sendJson(res, { error: true, message: err.message }, 500)
+        }
+
+    }
     create(res, payload) {
         if (res === "" || res === undefined || res === null) {
             return "group creation requires a valid {res} object but got none"
@@ -348,7 +376,7 @@ export default class Group {
                             return util.sendJson(res, { error: false, message: `fail to delete group, you dont belong to the group id provided` }, 404)
                         }
 
-                        
+
                         const { groupId } = payload;
 
                         const sql3 = `DELETE FROM groups WHERE id=$1`

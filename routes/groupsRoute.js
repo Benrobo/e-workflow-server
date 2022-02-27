@@ -5,6 +5,22 @@ import Group from "../services/groups.js"
 
 const GROUP = new Group()
 
+export const getGroupsByUserId = router.post(API_ROUTE.getGroupByUserId, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "group fetching require a valid payload but got none" }, 404)
+        }
+
+        return GROUP.allGroupsByUserId(res, data)
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
 export const createGroup = router.post(API_ROUTE.createGroup, checkAuth, (req, res) => {
     try {
         let data = req.body;
