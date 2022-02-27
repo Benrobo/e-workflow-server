@@ -3,7 +3,7 @@ import { db, util } from "../helpers/global.js";
 
 export default class GrantRequest {
     // logged In users
-    officerRegisterationApproved(res, data) {
+    staffRegApproved(res, data) {
         if (res === "" || res === undefined || res === null) {
             return "user registeration to be approved requires a valid {res} object but got none"
         }
@@ -41,8 +41,9 @@ export default class GrantRequest {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
-                            return util.sendJson(res, { error: false, message: "user successfully approved." }, 200)
+                            util.sendJson(res, { error: false, message: "user successfully approved." }, 200)
                         })
+                        return
                     }
 
                     return util.sendJson(res, { error: false, message: "user has been approved already." }, 200)
@@ -55,7 +56,7 @@ export default class GrantRequest {
         }
     }
 
-    officerRegisterationReject(res, data) {
+    staffRegReject(res, data) {
         if (res === "" || res === undefined || res === null) {
             return "user registeration to be approved requires a valid {res} object but got none"
         }

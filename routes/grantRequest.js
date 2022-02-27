@@ -14,7 +14,7 @@ export const approveRegRequest = router.post(API_ROUTE.approveRegRequest, checkA
         if (Object.entries(data).length === 0) {
             return util.sendJson(res, { message: "user registeration approved status required a valid payload but got none" }, 404)
         }
-        return grant.officerRegisterationApproved(res, data)
+        return grant.staffRegApproved(res, data)
     } catch (err) {
         return util.sendJson(res, { message: err.message }, 500)
     }
@@ -27,9 +27,9 @@ export const rejectRegRequest = router.post(API_ROUTE.rejectRegRequest, checkAut
             return util.sendJson(res, { message: "failed: payload is required" }, 400)
         }
         if (Object.entries(data).length === 0) {
-            return util.sendJson(res, { message: "user registeration approved status required a valid payload but got none" }, 404)
+            return util.sendJson(res, { message: "user registeration reject status required a valid payload but got none" }, 404)
         }
-        return grant.officerRegisterationReject(res, data)
+        return grant.staffRegReject(res, data)
     } catch (err) {
         return util.sendJson(res, { message: err.message }, 500)
     }
