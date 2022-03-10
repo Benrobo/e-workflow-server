@@ -51,35 +51,7 @@ export default class Document {
                         return util.sendJson(res, { error: true, message: err.message }, 400)
                     }
 
-                    let documentData = {}
-                    let group = {}
-                    let groupS = []
-
-
-                    // return res.json(result.rows)
-
-                    if (result.rowCount > 0 && result.rows[0].groupId !== null) {
-                        // get groupData
-                        let test = []
-                        let groupId = result.rows[0].groupId.trim();
-                        const sql2 = `SELECT * FROM groups WHERE id=$1`
-                        await db.query(sql2, [groupId], (err, data1) => {
-                            if (err) {
-                                return util.sendJson(res, { error: true, message: err.message }, 400)
-                            }
-
-                            test.push(data1.rows[0])
-                        })
-                        documentData["group"] = test
-                    }
-
                     documentData["document"] = result.rows
-
-                    // console.log(groupS);
-                    documentData["benrobo"] = [
-                        "dscsdc",
-                        "sdcdsc"
-                    ]
 
                     return util.sendJson(res, { error: false, documentData }, 200)
                 })
