@@ -69,7 +69,7 @@ export const addMembers = router.post(API_ROUTE.addGroupMembers, checkAuth, (req
     }
 })
 
-export const editGroup = router.post(API_ROUTE.editGroup, checkAuth, (req, res) => {
+export const editGroup = router.put(API_ROUTE.editGroup, checkAuth, (req, res) => {
     try {
         let data = req.body;
         if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
@@ -86,7 +86,7 @@ export const editGroup = router.post(API_ROUTE.editGroup, checkAuth, (req, res) 
 })
 
 
-export const deleteGroupMembers = router.post(API_ROUTE.deleteGroupMembers, checkAuth, (req, res) => {
+export const deleteGroupMembers = router.delete(API_ROUTE.deleteGroupMembers, checkAuth, (req, res) => {
     try {
         let data = req.body;
         if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
@@ -102,7 +102,7 @@ export const deleteGroupMembers = router.post(API_ROUTE.deleteGroupMembers, chec
     }
 })
 
-export const deleteGroup = router.post(API_ROUTE.deleteGroup, checkAuth, (req, res) => {
+export const deleteGroup = router.delete(API_ROUTE.deleteGroup, checkAuth, (req, res) => {
     try {
         let data = req.body;
         if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {

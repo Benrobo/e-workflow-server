@@ -16,7 +16,7 @@ export default class Group {
         }
 
         try {
-            const sql = `SELECT * FROM groups WHERE "userId"=$1`
+            const sql = `SELECT * FROM groups WHERE "memberId"=$1`
             db.query(sql, [payload.userId.trim()], (err, result) => {
                 if (err) {
                     return util.sendJson(res, { error: true, message: err.message }, 400)
@@ -74,6 +74,7 @@ export default class Group {
                             SELECT 
                                 groups.id,
                                 groups."userId",
+                                groups."memberId",
                                 groups.name,
                                 groups."courseName",
                                 groups."courseType",
@@ -206,7 +207,7 @@ export default class Group {
                     }
 
                     if (result.rowCount === 0) {
-                        return util.sendJson(res, { error: false, message: `failed to add members to [${payload.name}]: user not found ` }, 404)
+                        return util.sendJson(res, { error: true, message: `failed to add members to [${payload.name}]: user not found ` }, 404)
                     }
 
                     // check if member exist in database cause we wanna prevent adding members whichn doesnt exists
@@ -218,7 +219,7 @@ export default class Group {
                         }
 
                         if (result.rowCount === 0) {
-                            return util.sendJson(res, { error: false, message: `failed to add member. member doesnt exist.` }, 404)
+                            return util.sendJson(res, { error: true, message: `failed to add member. member doesnt exist.` }, 404)
                         }
 
                         //  check if the user id has a role of either staff or admin
@@ -231,7 +232,7 @@ export default class Group {
                             }
 
                             if (data1.rowCount > 0 && data1.rows[0].type === "admin" || data1.rows[0].type === "staff") {
-                                return util.sendJson(res, { error: false, message: `user with the type of {admin} and {staff} cant be added to any group` }, 403)
+                                return util.sendJson(res, { error: true, message: `user with the type of {admin} and {staff} cant be added to any group` }, 403)
                             }
 
                             // 3. check if group exists;
@@ -242,7 +243,7 @@ export default class Group {
                                 }
 
                                 if (data2.rowCount === 0) {
-                                    return util.sendJson(res, { error: false, message: `group not found. create one.` }, 404)
+                                    return util.sendJson(res, { error: true, message: `group not found. create one.` }, 404)
                                 }
 
                                 // check if member already exist in group
@@ -253,7 +254,7 @@ export default class Group {
                                         return util.sendJson(res, { error: true, message: err.message }, 400)
                                     }
                                     if (data3.rowCount > 0) {
-                                        return util.sendJson(res, { error: false, message: `member already exist in that group.` }, 400)
+                                        return util.sendJson(res, { error: true, message: `member already exist in that group.` }, 400)
                                     }
 
                                     // add member to group
@@ -390,7 +391,7 @@ export default class Group {
 
 
                     if (result.rowCount === 0 || result.rowCount === 1) {
-                        return util.sendJson(res, { error: false, message: `either you or member doesnt exist` }, 404)
+                        return util.sendJson(res, { error: true, message: `either you or member doesnt exist` }, 404)
                     }
 
                     // check if user already exist in a group before deleting group members
@@ -401,29 +402,41 @@ export default class Group {
                         }
 
                         if (data1.rowCount === 0) {
-                            return util.sendJson(res, { error: false, message: `fail to delete group members, no group found` }, 404)
+                            return util.sendJson(res, { error: true, message: `fail to delete group members, no group found` }, 404)
                         }
 
                         // check if userid trying to delete group member detail is present
                         const sql3 = `SELECT * FROM groups WHERE id=$1 AND "userId"=$2`
-                        db.query(sql3, [payload.groupId.trim(), payload.memberId.trim()], (err, data2) => {
+                        db.query(sql3, [payload.groupId.trim(), payload.userId.trim()], (err, data2) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
                             if (data2.rowCount === 0) {
-                                return util.sendJson(res, { error: false, message: `cant delete group members: cause member doesnt exists` }, 404)
+                                return util.sendJson(res, { error: true, message: `group deletion failed: you dont have permission.` }, 403)
                             }
 
-                            const { groupId, memberId } = payload;
-
-                            const sql3 = `DELETE FROM groups WHERE id=$1 AND "userId"=$2`
-                            db.query(sql3, [groupId.trim(), memberId.trim()], (err) => {
+                            // check if member exist before deletion takes place
+                            const sql4 = `SELECT * FROM groups WHERE id=$1 AND "memberId"=$2`
+                            db.query(sql4, [payload.groupId.trim(), payload.memberId.trim()], (err, data3) => {
                                 if (err) {
                                     return util.sendJson(res, { error: true, message: err.message }, 400)
                                 }
 
-                                return util.sendJson(res, { error: false, message: "successfully deleted group member" }, 200)
+                                if (data3.rowCount === 0) {
+                                    return util.sendJson(res, { error: true, message: `deletion failed: member doesnt exist` }, 404)
+                                }
+
+                                const { groupId, memberId } = payload;
+
+                                const sql3 = `DELETE FROM groups WHERE id=$1 AND "memberId"=$2`
+                                db.query(sql3, [groupId.trim(), memberId.trim()], (err) => {
+                                    if (err) {
+                                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                                    }
+
+                                    return util.sendJson(res, { error: false, message: "group member successfully deleted" }, 200)
+                                })
                             })
                         })
                     })
@@ -474,16 +487,30 @@ export default class Group {
                             return util.sendJson(res, { error: false, message: `fail to delete group, you dont belong to the group id provided` }, 404)
                         }
 
+                        let q1 = `DELETE FROM documents WHERE "groupId"=$1 AND "userId"=$2`
+                        let q2 = `DELETE FROM "docFeedback" WHERE "groupId"=$1`
+                        const { groupId, userId } = payload;
 
-                        const { groupId } = payload;
-
-                        const sql3 = `DELETE FROM groups WHERE id=$1`
-                        db.query(sql3, [groupId.trim()], (err) => {
+                        // go ahead if it was the student who posted it
+                        db.query(q1, [groupId.trim(), userId.trim()], (err) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
-                            return util.sendJson(res, { error: false, message: "successfully deleted group" }, 200)
+                            // delete documentFeedback
+                            db.query(q2, [groupId.trim()], (err) => {
+                                if (err) {
+                                    return util.sendJson(res, { error: true, message: err.message }, 400)
+                                }
+
+                                const q4 = `DELETE FROM groups WHERE id=$1 AND "userId"=$2`
+                                db.query(q4, [groupId.trim(), userId.trim()], (err) => {
+                                    if (err) {
+                                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                                    }
+                                    return util.sendJson(res, { error: false, message: "group successfully deleted" }, 200)
+                                })
+                            })
                         })
 
                     })
