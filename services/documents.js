@@ -263,7 +263,7 @@ export default class Document {
                                             return util.sendJson(res, { error: true, message: err.message }, 400)
                                         }
 
-                                        return util.sendJson(res, { error: true, message: "document submitted successfully." }, 200)
+                                        return util.sendJson(res, { error: false, message: "document submitted successfully." }, 200)
                                     })
                                 })
                             })
