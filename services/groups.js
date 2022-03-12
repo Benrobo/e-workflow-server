@@ -30,6 +30,81 @@ export default class Group {
         }
 
     }
+
+    getGroupMembers(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "fetching all groups member requires a valid {res} object but got none"
+        }
+
+        if (payload.userId === undefined || payload.groupId === undefined) {
+            return util.sendJson(res, { error: true, message: "payload requires a valid fields [userId, groupId] but got undefined" }, 400)
+        }
+
+        if (payload.userId === "") {
+            return util.sendJson(res, { error: true, message: "payload requires a valid userId but got empty" }, 400)
+        }
+        if (payload.groupId === "") {
+            return util.sendJson(res, { error: true, message: "payload requires a valid groupId but got empty" }, 400)
+        }
+
+        try {
+            // check if user exist first
+            const q1 = `SELECT * FROM users WHERE "userId"=$1`
+            db.query(q1, [payload.userId.trim()], (err, data1) => {
+                if (err) {
+                    return util.sendJson(res, { error: true, message: err.message }, 400)
+                }
+
+                if (data1.rowCount === 0) {
+                    return util.sendJson(res, { error: true, message: "failed to get group members, user doesnt exist" }, 404)
+                }
+
+                // check  if groups exists
+                const q2 = `SELECT * FROM groups WHERE id=$1`
+                db.query(q2, [payload.groupId.trim()], (err, data2) => {
+                    if (err) {
+                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                    }
+
+                    if (data2.rowCount === 0) {
+                        return util.sendJson(res, { error: true, message: "group doesnt exist" }, 404)
+                    }
+
+                    const sql = `
+                            SELECT 
+                                groups.id,
+                                groups."userId",
+                                groups.name,
+                                groups."courseName",
+                                groups."courseType",
+                                users."userName",
+                                users.mail
+                            FROM
+                                groups
+                            INNER JOIN
+                                users
+                            ON
+                                users."userId"=groups."memberId"
+                            WHERE
+                                groups.id=$1
+                            `
+                    db.query(sql, [payload.groupId.trim()], (err, result) => {
+                        if (err) {
+                            return util.sendJson(res, { error: true, message: err.message }, 400)
+                        }
+
+                        return util.sendJson(res, { error: false, data: result.rows }, 200)
+                    })
+                })
+            })
+
+        } catch (err) {
+            console.log(err);
+            return util.sendJson(res, { error: true, message: err.message }, 500)
+        }
+
+    }
+
     create(res, payload) {
         if (res === "" || res === undefined || res === null) {
             return "group creation requires a valid {res} object but got none"
@@ -55,7 +130,7 @@ export default class Group {
             // check if user exist
             try {
                 const sql = `SELECT * FROM users WHERE "userId"=$1`
-                db.query(sql, [payload.studentId], (err, result) => {
+                db.query(sql, [payload.studentId.trim()], (err, result) => {
                     if (err) {
                         return util.sendJson(res, { error: true, message: err.message }, 400)
                     }
@@ -66,7 +141,7 @@ export default class Group {
 
 
                     if (result.rowCount > 0 && result.rows[0].type === "admin" || result.rows[0].type === "staff") {
-                        return util.sendJson(res, { error: false, message: `user with the type of {admin} and {staff} cant be added to any group` }, 403)
+                        return util.sendJson(res, { error: false, message: `user with the type of {admin} and {staff} cant are not allowed to create a group` }, 403)
                     }
 
                     // check if user already exist in a group before creating new group
@@ -86,8 +161,8 @@ export default class Group {
                         const id = util.genId()
                         const date = util.formatDate()
 
-                        let sql3 = `INSERT INTO groups(id, name, "courseType", "courseName","userId","created_at") VALUES($1, $2, $3, $4, $5, $6)`
-                        db.query(sql3, [id, name.trim(), courseType.trim(), courseName.trim(), studentId.trim(), date.trim()], (err, data) => {
+                        let sql3 = `INSERT INTO groups(id, name, "courseType", "courseName","userId", "memberId","created_at") VALUES($1, $2, $3, $4, $5, $6,$7)`
+                        db.query(sql3, [id, name.trim(), courseType.trim(), courseName.trim(), studentId.trim(), studentId.trim(), date.trim()], (err, data) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
@@ -109,17 +184,23 @@ export default class Group {
         }
 
         if (payload && Object.entries(payload).length > 0) {
-            if (payload.memberId === undefined || payload.groupId === undefined) {
+            if (payload.memberId === undefined || payload.groupId === undefined || payload.userId === undefined) {
                 return util.sendJson(res, { error: true, message: "payload requires a valid fields [memberId,courseName,courseType] but got undefined" }, 400)
             }
             if (payload.memberId === "") {
                 return util.sendJson(res, { error: true, message: "memberId cant be empty" }, 400)
             }
+            if (payload.groupId === "") {
+                return util.sendJson(res, { error: true, message: "groupId cant be empty" }, 400)
+            }
+            if (payload.userId === "") {
+                return util.sendJson(res, { error: true, message: "userId cant be empty" }, 400)
+            }
 
             try {
                 // 1. check if user exists in main database
                 const sql1 = `SELECT "userId" FROM users WHERE "userId"=$1`
-                db.query(sql1, [payload.memberId], (err, result) => {
+                db.query(sql1, [payload.userId.trim()], (err, result) => {
                     if (err) {
                         return util.sendJson(res, { error: true, message: err.message }, 400)
                     }
@@ -128,57 +209,74 @@ export default class Group {
                         return util.sendJson(res, { error: false, message: `failed to add members to [${payload.name}]: user not found ` }, 404)
                     }
 
-                    //  check if the user id has a role of either staff or admin
-                    // we dont want student to add staff or admin to individual created group
+                    // check if member exist in database cause we wanna prevent adding members whichn doesnt exists
 
-                    const sql2 = `SELECT * FROM users WHERE "userId"=$1`
-                    db.query(sql2, [payload.memberId], (err, data1) => {
+                    const sql2 = `SELECT "userId" FROM users WHERE "userId"=$1`
+                    db.query(sql2, [payload.memberId.trim()], (err, result) => {
                         if (err) {
                             return util.sendJson(res, { error: true, message: err.message }, 400)
                         }
 
-                        if (data1.rowCount > 0 && data1.rows[0].type === "admin" || data1.rows[0].type === "staff") {
-                            return util.sendJson(res, { error: false, message: `user with the type of {admin} and {staff} cant be added to any group` }, 403)
+                        if (result.rowCount === 0) {
+                            return util.sendJson(res, { error: false, message: `failed to add member. member doesnt exist.` }, 404)
                         }
 
-                        // 3. check if group exists;
-                        const sql3 = `SELECT * FROM groups WHERE id=$1 AND "userId"=$2`
-                        db.query(sql3, [payload.groupId.trim(), payload.memberId.trim()], (err, data2) => {
+                        //  check if the user id has a role of either staff or admin
+                        // we dont want student to add staff or admin to individual created group
+
+                        const sql3 = `SELECT * FROM users WHERE "userId"=$1`
+                        db.query(sql3, [payload.memberId.trim()], (err, data1) => {
                             if (err) {
                                 return util.sendJson(res, { error: true, message: err.message }, 400)
                             }
 
-                            if (data2.rowCount === 0) {
-                                return util.sendJson(res, { error: false, message: `failed to add members: group not found ` }, 404)
+                            if (data1.rowCount > 0 && data1.rows[0].type === "admin" || data1.rows[0].type === "staff") {
+                                return util.sendJson(res, { error: false, message: `user with the type of {admin} and {staff} cant be added to any group` }, 403)
                             }
 
-                            // check if member already exist in group
-
-                            const sql4 = `SELECT * FROM groups WHERE "userId"=$1 AND id=$2`
-                            db.query(sql4, [payload.memberId.trim(), payload.groupId.trim()], (err, data3) => {
+                            // 3. check if group exists;
+                            const sql3 = `SELECT * FROM groups WHERE id=$1 AND "userId"=$2`
+                            db.query(sql3, [payload.groupId.trim(), payload.userId.trim()], (err, data2) => {
                                 if (err) {
                                     return util.sendJson(res, { error: true, message: err.message }, 400)
                                 }
-                                if (data3.rowCount > 0) {
-                                    return util.sendJson(res, { error: false, message: `failed to add members to [${data2.rows[0].name}]: member already exist ` }, 400)
+
+                                if (data2.rowCount === 0) {
+                                    return util.sendJson(res, { error: false, message: `group not found. create one.` }, 404)
                                 }
 
-                                // add member to group
-                                const { courseName, courseType, memberId, groupId } = payload;
-                                const date = util.formatDate()
-                                const groupName = data2.rows[0].name
+                                // check if member already exist in group
 
-                                let sql5 = `INSERT INTO groups(id, name, "courseType", "courseName","userId","created_at") VALUES($1, $2, $3, $4, $5, $6)`
-                                db.query(sql5, [groupId.trim(), groupName.trim(), courseType.trim(), courseName.trim(), memberId.trim(), date.trim()], (err) => {
+                                const sql4 = `SELECT * FROM groups WHERE "memberId"=$1 AND id=$2`
+                                db.query(sql4, [payload.memberId.trim(), payload.groupId.trim()], (err, data3) => {
                                     if (err) {
                                         return util.sendJson(res, { error: true, message: err.message }, 400)
                                     }
+                                    if (data3.rowCount > 0) {
+                                        return util.sendJson(res, { error: false, message: `member already exist in that group.` }, 400)
+                                    }
 
-                                    return util.sendJson(res, { error: false, message: `member was added successfully to ${groupName}` }, 200)
+                                    // add member to group
+                                    const { userId, memberId, groupId } = payload;
+                                    const date = util.formatDate()
+                                    const groupName = data2.rows[0].name;
+                                    const courseName = data2.rows[0].courseName;
+                                    const courseType = data2.rows[0].courseType;
+
+                                    let sql5 = `INSERT INTO groups(id, name, "courseName", "courseType","userId","memberId","created_at") VALUES($1, $2, $3, $4,$5,$6,$7)`
+                                    db.query(sql5, [groupId.trim(), groupName, courseName, courseType, userId.trim(), memberId.trim(), date.trim()], (err) => {
+                                        if (err) {
+                                            return util.sendJson(res, { error: true, message: err.message }, 400)
+                                        }
+
+                                        return util.sendJson(res, { error: false, message: `member added successfully.` }, 200)
+                                    })
                                 })
                             })
                         })
+
                     })
+
                 })
             } catch (err) {
                 console.log(err);

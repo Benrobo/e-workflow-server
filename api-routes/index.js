@@ -15,6 +15,7 @@ const API_ROUTE = {
     deleteToken: "/api/token/deleteToken",
     sendMail: "/api/user/sendMail",
     getGroupByUserId: "/api/user/groups/all",
+    getGroupMembers: "/api/user/groups/members",
     createGroup: "/api/user/groups/create",
     addGroupMembers: "/api/user/groups/addMembers",
     editGroup: "/api/user/groups/edit",
