@@ -6,7 +6,7 @@ import Permission from "../services/permissions.js"
 const PERMISSIONS = new Permission()
 
 
-export const setPermission = (API_ROUTE.setPermission, checkAuth, (req, res) => {
+export const setPermission = router.put(API_ROUTE.setPermission, checkAuth, (req, res) => {
     try {
         let data = req.body;
         if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
@@ -17,6 +17,23 @@ export const setPermission = (API_ROUTE.setPermission, checkAuth, (req, res) => 
         }
 
         return PERMISSIONS.set(res, data)
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
+
+export const setRole = router.put(API_ROUTE.setRoles, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "setting of user role require a valid payload but got none" }, 404)
+        }
+
+        return PERMISSIONS.setUserRole(res, data)
     } catch (err) {
         return util.sendJson(res, { message: err.message }, 500)
     }

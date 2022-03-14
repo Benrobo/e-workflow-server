@@ -1,13 +1,11 @@
 import { util, db } from "../helpers/global.js"
 
-/**
- * 
- * @Permissions_State
- * 
- * [ 1 ] -> READ/WRITE : normal staffs ( Course Cordinators)
- * [ 2 ] -> READ/WRITE : staff with higher responsibility ( HODS, School Officer )
- * [ 3 ] -> READ/WRITE/EXECUTE : admins only
- */
+
+//  @Permissions_State (documents)
+//   [ 1 ] -> READ/WRITE : normal staffs ( Course Cordinators)
+//   [ 2 ] -> READ/WRITE : staff with higher responsibility ( HODS, School Officer )
+//   [ 3 ] -> READ/WRITE/EXECUTE : admins only
+
 
 export default class Permission {
     set(res, payload) {
@@ -74,6 +72,68 @@ export default class Permission {
                         }
 
                         return util.sendJson(res, { error: false, message: "documentPermissions has been set succesfully" }, 200)
+                    })
+                })
+            } catch (err) {
+                return util.sendJson(res, { error: true, message: err.message }, 500)
+            }
+        }
+    }
+
+    setUserRole(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "setting of user role requires a valid {res} object but got none"
+        }
+
+        if (payload && Object.entries(payload).length > 0) {
+            if (payload.userId === undefined || payload.staffId === undefined || payload.role === undefined) {
+                return util.sendJson(res, { error: true, message: "payload requires a valid fields [userid,staffId, role] but got undefined" }, 400)
+            }
+
+            if (payload.userId === "") {
+                return util.sendJson(res, { error: true, message: "assigning user roles requires a valid userid but got none" }, 400)
+            }
+
+            if (payload.role === "") {
+                return util.sendJson(res, { error: true, message: "assigning user roles requires a valid role but got none" }, 400)
+            }
+
+            if (payload.staffId === "") {
+                return util.sendJson(res, { error: true, message: "assigning user roles requires a valid staffId but got none" }, 400)
+            }
+
+            const validRole = ["admin", "user"]
+
+            if (!validRole.includes(payload.role)) {
+                return util.sendJson(res, { error: true, message: "permission role is invalid" }, 403)
+            }
+
+            try {
+                // check if userid exist in db
+                const q1 = `SELECT * FROM users WHERE "userId"=$1`
+                db.query(q1, [payload.userId.trim()], (err, result) => {
+                    if (err) {
+                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                    }
+
+                    if (result.rowCount === 0) {
+                        return util.sendJson(res, { error: true, message: "fail to set user role: user [id] doesnt exist" }, 404)
+                    }
+
+                    // check if user assigning permission is an admin else block if not
+                    if (result.rows[0].userRole !== "admin") {
+                        return util.sendJson(res, { error: true, message: "only ADMIN can set/assign user role" }, 403)
+                    }
+
+                    const { staffId, role } = payload;
+
+                    const sql1 = `UPDATE users SET "userRole"=$1 WHERE "userId"=$2`
+                    db.query(sql1, [role.trim(), staffId.trim()], (err) => {
+                        if (err) {
+                            return util.sendJson(res, { error: true, message: err.message }, 400)
+                        }
+
+                        return util.sendJson(res, { error: false, message: "user role has been set succesfully" }, 200)
                     })
                 })
             } catch (err) {
