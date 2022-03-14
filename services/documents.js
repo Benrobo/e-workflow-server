@@ -1606,27 +1606,42 @@ export default class Document {
               // update document in database
               const { documentType, documentId, userId } = payload;
 
-              // check if the user is trying to edit file
-              const sql3 = `DELETE FROM documents WHERE id=$1 AND "userId"=$2 AND "documentType"=$3`;
-              db.query(
-                sql3,
-                [documentId.trim(), userId.trim(), documentType.trim()],
-                (err) => {
-                  if (err) {
-                    return util.sendJson(
-                      res,
-                      { error: true, message: err.message },
-                      400
-                    );
-                  }
+              //   remove other data in relation with documents table before deleting main document
 
+              const sql3 = `DELETE FROM "docFeedback" WHERE "documentId"=$1`;
+              db.query(sql3, [documentId.trim()], (err) => {
+                if (err) {
                   return util.sendJson(
                     res,
-                    { error: true, message: "document deleted successfully." },
-                    200
+                    { error: true, message: err.message },
+                    400
                   );
                 }
-              );
+
+                const sql4 = `DELETE FROM documents WHERE id=$1 AND "userId"=$2 AND "documentType"=$3`;
+                db.query(
+                  sql4,
+                  [documentId.trim(), userId.trim(), documentType.trim()],
+                  (err) => {
+                    if (err) {
+                      return util.sendJson(
+                        res,
+                        { error: true, message: err.message },
+                        400
+                      );
+                    }
+
+                    return util.sendJson(
+                      res,
+                      {
+                        error: false,
+                        message: "document deleted successfully.",
+                      },
+                      200
+                    );
+                  }
+                );
+              });
             }
           );
         });
