@@ -50,6 +50,7 @@
 
 
 4. CREATE TABLE "docFeedback"(
+    id TEXT NOT NULL  unique primary key,
     "note" TEXT NOT NULL,
     "documentId" TEXT NOT NULL,
     "groupId" TEXT NOT NULL,

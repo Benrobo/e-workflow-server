@@ -7,7 +7,26 @@ export default class Document {
             return "getting all documents requires a valid {res} object but got none"
         }
         try {
-            const sql = `SELECT * FROM documents`
+            const sql = `
+                        SELECT 
+                            documents.id,
+                            documents.title,
+                            documents."documentType",
+                            documents."courseType",
+                            documents."courseName",
+                            documents."userId",
+                            documents."groupId",
+                            documents.status,
+                            documents."staffId",
+                            users."userName",
+                            documents.file
+                        FROM 
+                            documents
+                        INNER JOIN
+                            users
+                        ON
+                            users."userId"=documents."staffId"
+                        `
             db.query(sql, (err, result) => {
                 if (err) {
                     return util.sendJson(res, { error: true, message: err.message }, 400)
@@ -32,7 +51,7 @@ export default class Document {
 
     docsById(res, payload) {
         if (res === "" || res === undefined || res === null) {
-            return "deleting documents requires a valid {res} object but got none"
+            return "fetching document requires a valid {res} object but got none"
         }
 
         if (payload && Object.entries(payload).length > 0) {
@@ -45,15 +64,36 @@ export default class Document {
 
             // check if user exist
             try {
-                const sql = `SELECT * FROM documents WHERE documents.id=$1 `
+                const sql = `
+                        SELECT 
+                            documents.id,
+                            documents.title,
+                            documents."documentType",
+                            documents."courseType",
+                            documents."courseName",
+                            documents."userId",
+                            documents."groupId",
+                            documents.status,
+                            documents."staffId",
+                            users."userName",
+                            documents.file
+                        FROM 
+                            documents
+                        INNER JOIN
+                            users
+                        ON
+                            users."userId"=documents."staffId"
+                        WHERE
+                            documents.id=$1
+                        `
                 db.query(sql, [payload.documentId.trim()], async (err, result) => {
                     if (err) {
                         return util.sendJson(res, { error: true, message: err.message }, 400)
                     }
 
-                    documentData["document"] = result.rows
 
-                    return util.sendJson(res, { error: false, documentData }, 200)
+
+                    return util.sendJson(res, { error: false, document: result.rows }, 200)
                 })
             } catch (err) {
                 console.log(err);
@@ -64,7 +104,7 @@ export default class Document {
 
     docsByUserId(res, payload) {
         if (res === "" || res === undefined || res === null) {
-            return "deleting documents requires a valid {res} object but got none"
+            return "feteching documents requires a valid {res} object but got none"
         }
 
         if (payload && Object.entries(payload).length > 0) {
@@ -77,23 +117,36 @@ export default class Document {
             }
 
             try {
-                const sql = `SELECT * FROM documents WHERE "userId"=$1`
-                db.query(sql, [payload.userId.trim()], (err, result) => {
+                const { userId } = payload
+                // check if user exist
+                const q1 = `SELECT * FROM users`
+                db.query(q1, [userId.trim()], (err, data1) => {
                     if (err) {
                         return util.sendJson(res, { error: true, message: err.message }, 400)
                     }
 
-                    // check if 
-                    let members = []
-
-                    let documentData = {
-                        ...result.rows,
-                        ...members
+                    if (data1.rowCount === 0) {
+                        return util.sendJson(res, { error: true, message: "failed getting document: user doesnt exist" }, 404)
                     }
 
+                    const q2 = `
+                            SELECT 
 
-                    return util.sendJson(res, { error: false, document: documentData }, 200)
+                            FROM 
+                                documents 
+                            WHERE 
+                                "userId"=$1
+                            `
+                    db.query(q2, [userId.trim()], (err, data2) => {
+                        if (err) {
+                            return util.sendJson(res, { error: true, message: err.message }, 400)
+                        }
+
+
+                        return util.sendJson(res, { error: false, document: data2.rows }, 200)
+                    })
                 })
+
             } catch (err) {
                 console.log(err);
                 return util.sendJson(res, { error: true, message: err.message }, 500)
@@ -721,6 +774,344 @@ export default class Document {
                             return util.sendJson(res, { error: true, message: "document deleted successfully." }, 200)
                         })
 
+                    })
+                })
+            } catch (err) {
+                console.log(err);
+                return util.sendJson(res, { error: true, message: err.message }, 500)
+            }
+        }
+    }
+
+    docFeedback(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "fetching document feedback requires a valid {res} object but got none"
+        }
+
+        if (payload && Object.entries(payload).length > 0) {
+            if (payload.documentId === undefined) {
+                return util.sendJson(res, { error: true, message: "payload requires a valid fields [documentId] but got undefined" }, 400)
+            }
+            if (payload.documentId === "") {
+                return util.sendJson(res, { error: true, message: "documentId cant be empty" }, 400)
+            }
+
+            // check if user exist
+            try {
+                const sql = `
+                        SELECT 
+                            "docFeedback".id,
+                            "docFeedback".note,
+                            "docFeedback"."groupId",
+                            "docFeedback"."staffId",
+                            users."userName"
+                        FROM 
+                            "docFeedback"
+                        INNER JOIN
+                            users
+                        ON
+                            users."userId"="docFeedback"."staffId"
+                        WHERE
+                            "docFeedback"."documentId"=$1
+                        `
+                db.query(sql, [payload.documentId.trim()], async (err, result) => {
+                    if (err) {
+                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                    }
+
+                    return util.sendJson(res, { error: false, document: result.rows }, 200)
+                })
+            } catch (err) {
+                console.log(err);
+                return util.sendJson(res, { error: true, message: err.message }, 500)
+            }
+        }
+    }
+
+    addFeedBack(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "submitting documents feedback requires a valid {res} object but got none"
+        }
+
+        if (payload && Object.entries(payload).length > 0) {
+            if (payload.note === undefined || payload.staffId === undefined || payload.groupId === undefined || payload.documentId === undefined) {
+                return util.sendJson(res, { error: true, message: "payload requires a valid fields [staffId,groupId,documentId,note] but got undefined" }, 400)
+            }
+            if (payload.note === "") {
+                return util.sendJson(res, { error: true, message: "note cant be empty" }, 400)
+            }
+            if (payload.staffId === "") {
+                return util.sendJson(res, { error: true, message: "staffId cant be empty" }, 400)
+            }
+            if (payload.groupId === "") {
+                return util.sendJson(res, { error: true, message: "groupId cant be empty" }, 400)
+            }
+            if (payload.courseType === "") {
+                return util.sendJson(res, { error: true, message: "courseType cant be empty" }, 400)
+            }
+            if (payload.courseName === "") {
+                return util.sendJson(res, { error: true, message: "courseName cant be empty" }, 400)
+            }
+            if (payload.documentId === "") {
+                return util.sendJson(res, { error: true, message: "documentId cant be empty" }, 400)
+            }
+
+            // check if user exist
+            try {
+                const sql = `SELECT * FROM users WHERE "userId"=$1`
+                db.query(sql, [payload.staffId.trim()], (err, result) => {
+                    if (err) {
+                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                    }
+
+                    if (result.rowCount === 0) {
+                        return util.sendJson(res, { error: true, message: "failed to submit document feedback: user doesnt exist" }, 400)
+                    }
+
+                    // check if user submitting document isnt a student
+                    if (result.rows[0].type === "student") {
+                        return util.sendJson(res, { error: true, message: "only staff are meant to add document feedback not student" }, 400)
+                    }
+
+                    // check if staff/cordinator exists
+                    db.query(sql, [payload.staffId.trim()], (err, data1) => {
+                        if (err) {
+                            return util.sendJson(res, { error: true, message: err.message }, 400)
+                        }
+
+                        if (data1.rowCount === 0) {
+                            return util.sendJson(res, { error: true, message: "failed to submit document feedback: cordinator doesnt exists" }, 404)
+                        }
+
+                        // check if group exists
+                        const sql2 = `SELECT * FROM groups WHERE id=$1`
+                        db.query(sql2, [payload.groupId.trim()], (err, data2) => {
+                            if (err) {
+                                return util.sendJson(res, { error: true, message: err.message }, 400)
+                            }
+
+                            if (data2.rowCount === 0) {
+                                return util.sendJson(res, { error: true, message: "failed to submit feedback: group doesnt exist." }, 404)
+                            }
+
+                            // check if document which the group is trying to submit already exists
+                            const sql3 = `SELECT * FROM documents WHERE "groupId"=$1 AND id=$2`
+                            db.query(sql3, [payload.groupId.trim(), payload.documentId.trim()], (err, data4) => {
+                                if (err) {
+                                    return util.sendJson(res, { error: true, message: err.message }, 400)
+                                }
+
+                                if (data4.rowCount === 0) {
+                                    return util.sendJson(res, { error: true, message: "document youre trying to submit feedback for doesnt exist." }, 200)
+                                }
+
+                                // save feedback in database
+                                const { note, groupId, staffId, documentId } = payload
+                                const id = util.genId()
+                                const date = util.formatDate()
+
+                                const sql4 = `INSERT INTO "docFeedback"(id,note,"groupId","staffId","documentId","created_at") VALUES($1,$2,$3,$4,$5,$6)`;
+                                db.query(sql4, [id.trim(), note.trim(), groupId.trim(), staffId.trim(), documentId.trim(), date.trim()], (err) => {
+                                    if (err) {
+                                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                                    }
+
+                                    return util.sendJson(res, { error: false, message: "feedback submitted successfully." }, 200)
+                                })
+                            })
+                        })
+                    })
+                })
+            } catch (err) {
+                console.log(err);
+                return util.sendJson(res, { error: true, message: err.message }, 500)
+            }
+        }
+    }
+
+    approveDocument(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "approving documents requires a valid {res} object but got none"
+        }
+
+        if (payload && Object.entries(payload).length > 0) {
+            if (payload.staffId === undefined || payload.documentId === undefined || payload.documentType === undefined) {
+                return util.sendJson(res, { error: true, message: "payload requires a valid fields [staffId,documentId, documentType] but got undefined" }, 400)
+            }
+
+            if (payload.staffId === "") {
+                return util.sendJson(res, { error: true, message: "staffId cant be empty" }, 400)
+            }
+            if (payload.documentId === "") {
+                return util.sendJson(res, { error: true, message: "documentId cant be empty" }, 400)
+            }
+            if (payload.documentType === "") {
+                return util.sendJson(res, { error: true, message: "documentType cant be empty" }, 400)
+            }
+
+            const validType = ["CF", "FYP"]
+
+            if (!validType.includes(payload.documentType)) {
+                return util.sendJson(res, { error: true, message: `documentType [${payload.documentType}] is invalid` }, 400)
+            }
+
+            // check if user exist
+            try {
+                const sql = `SELECT * FROM users WHERE "userId"=$1`
+                db.query(sql, [payload.staffId.trim()], (err, result) => {
+                    if (err) {
+                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                    }
+
+                    if (result.rowCount === 0) {
+                        return util.sendJson(res, { error: true, message: "failed to approve document: user doesnt exist" }, 400)
+                    }
+
+                    // check if user submitting document isnt a student
+                    if (result.rows[0].type === "student") {
+                        return util.sendJson(res, { error: true, message: "only staff are meant to approve document not student" }, 403)
+                    }
+
+                    // check if staff/cordinator exists
+                    db.query(sql, [payload.staffId.trim()], (err, data1) => {
+                        if (err) {
+                            return util.sendJson(res, { error: true, message: err.message }, 400)
+                        }
+
+                        if (data1.rowCount === 0) {
+                            return util.sendJson(res, { error: true, message: "failed to approve document: cordinator doesnt exists" }, 404)
+                        }
+
+                        // check if document exists
+                        const sql3 = `SELECT * FROM documents WHERE id=$1 AND "documentType"=$2`
+                        db.query(sql3, [payload.documentId.trim(), payload.documentType.trim()], (err, data4) => {
+                            if (err) {
+                                return util.sendJson(res, { error: true, message: err.message }, 400)
+                            }
+
+                            if (data4.rowCount === 0) {
+                                return util.sendJson(res, { error: true, message: "document youre trying to approve doesnt exist." }, 404)
+                            }
+
+                            const { documentId, documentType, staffId } = payload
+
+                            // make sure staff who wanna approve document, that document must be assgined to them
+                            if (data4.rows[0].staffId !== staffId) {
+                                return util.sendJson(res, { error: true, message: "you dont have permission to approve document which wasnt posted in behalf of you." }, 403)
+                            }
+
+                            // check if staff has permission to approve document
+                            if (data1.rows[0].documentPermissions === 1 && documentType === "CF") {
+                                return util.sendJson(res, { error: true, message: "you dont have permission to reject course form document." }, 403)
+                            }
+                            const status = "approved"
+
+                            const sql4 = `UPDATE documents SET status=$1 WHERE id=$2 AND "documentType"=$3`;
+                            db.query(sql4, [status, documentId.trim(), documentType.trim()], (err) => {
+                                if (err) {
+                                    return util.sendJson(res, { error: true, message: err.message }, 400)
+                                }
+
+                                return util.sendJson(res, { error: false, message: "Document approved successfully." }, 200)
+                            })
+                        })
+                    })
+                })
+            } catch (err) {
+                console.log(err);
+                return util.sendJson(res, { error: true, message: err.message }, 500)
+            }
+        }
+    }
+
+    rejectDocument(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "rejecting documents requires a valid {res} object but got none"
+        }
+
+        if (payload && Object.entries(payload).length > 0) {
+            if (payload.staffId === undefined || payload.documentId === undefined || payload.documentType === undefined) {
+                return util.sendJson(res, { error: true, message: "payload requires a valid fields [staffId,documentId, documentType] but got undefined" }, 400)
+            }
+
+            if (payload.staffId === "") {
+                return util.sendJson(res, { error: true, message: "staffId cant be empty" }, 400)
+            }
+            if (payload.documentId === "") {
+                return util.sendJson(res, { error: true, message: "documentId cant be empty" }, 400)
+            }
+            if (payload.documentType === "") {
+                return util.sendJson(res, { error: true, message: "documentType cant be empty" }, 400)
+            }
+
+            const validType = ["CF", "FYP"]
+
+            if (!validType.includes(payload.documentType)) {
+                return util.sendJson(res, { error: true, message: `documentType [${payload.documentType}] is invalid` }, 400)
+            }
+
+            // check if user exist
+            try {
+                const sql = `SELECT * FROM users WHERE "userId"=$1`
+                db.query(sql, [payload.staffId.trim()], (err, result) => {
+                    if (err) {
+                        return util.sendJson(res, { error: true, message: err.message }, 400)
+                    }
+
+                    if (result.rowCount === 0) {
+                        return util.sendJson(res, { error: true, message: "failed to reject document: user doesnt exist" }, 400)
+                    }
+
+                    // check if user submitting document isnt a student
+                    if (result.rows[0].type === "student") {
+                        return util.sendJson(res, { error: true, message: "only staff are meant to reject document not student" }, 403)
+                    }
+
+                    // check if staff/cordinator exists
+                    db.query(sql, [payload.staffId.trim()], (err, data1) => {
+                        if (err) {
+                            return util.sendJson(res, { error: true, message: err.message }, 400)
+                        }
+
+                        if (data1.rowCount === 0) {
+                            return util.sendJson(res, { error: true, message: "failed to reject document: cordinator doesnt exists" }, 404)
+                        }
+
+                        // check if document exists
+                        const sql3 = `SELECT * FROM documents WHERE id=$1 AND "documentType"=$2`
+                        db.query(sql3, [payload.documentId.trim(), payload.documentType.trim()], (err, data4) => {
+                            if (err) {
+                                return util.sendJson(res, { error: true, message: err.message }, 400)
+                            }
+
+                            if (data4.rowCount === 0) {
+                                return util.sendJson(res, { error: true, message: "document youre trying to approve doesnt exist." }, 404)
+                            }
+
+                            // save feedback in database
+                            const { documentId, documentType, staffId } = payload
+
+                            // make sure staff who wanna approve document, that document must be assgined to them
+                            if (data4.rows[0].staffId !== staffId) {
+                                return util.sendJson(res, { error: true, message: "you dont have permission to reject document which wasnt posted in behalf of you." }, 403)
+                            }
+
+                            // check if staff has permission to approve document
+                            if (data1.rows[0].documentPermissions === 1 && documentType === "CF") {
+                                return util.sendJson(res, { error: true, message: "you dont have permission to reject course form document." }, 403)
+                            }
+
+                            const status = "rejected"
+
+                            const sql4 = `UPDATE documents SET status=$1 WHERE id=$2 AND "documentType"=$3`;
+                            db.query(sql4, [status, documentId.trim(), documentType.trim()], (err) => {
+                                if (err) {
+                                    return util.sendJson(res, { error: true, message: err.message }, 400)
+                                }
+
+                                return util.sendJson(res, { error: false, message: "Document rejected successfully." }, 200)
+                            })
+                        })
                     })
                 })
             } catch (err) {

@@ -21,10 +21,59 @@ export const getDocsId = router.post(API_ROUTE.getDocsById, checkAuth, (req, res
             return util.sendJson(res, { message: "failed: payload is required" }, 400)
         }
         if (Object.entries(data).length === 0) {
-            return util.sendJson(res, { message: "fetching all document require a valid payload but got none" }, 404)
+            return util.sendJson(res, { message: "fetching of document require a valid payload but got none" }, 404)
         }
 
         return DOCUMENT.docsById(res, data)
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
+export const getDocsByUserId = router.post(API_ROUTE.getDocsByUserId, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "fetching all document require a valid payload but got none" }, 404)
+        }
+
+        return DOCUMENT.docsByUserId(res, data)
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
+
+export const addFeedback = router.post(API_ROUTE.addFeedback, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "submitting of document feedback require a valid payload but got none" }, 404)
+        }
+        return DOCUMENT.addFeedBack(res, data)
+
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
+export const getDocFeedback = router.post(API_ROUTE.getDocFeedBack, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "fetching of document feedback require a valid payload but got none" }, 404)
+        }
+
+        return DOCUMENT.docFeedback(res, data)
     } catch (err) {
         return util.sendJson(res, { message: err.message }, 500)
     }
@@ -57,6 +106,40 @@ export const addDocument = router.post(API_ROUTE.addDocument, checkAuth, (req, r
         return util.sendJson(res, { message: err.message }, 500)
     }
 })
+
+export const approveDocument = router.put(API_ROUTE.approveDocument, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "approving of document require a valid payload but got none" }, 404)
+        }
+        return DOCUMENT.approveDocument(res, data)
+
+    } catch (err) {
+        console.log(err);
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
+export const rejectDocument = router.put(API_ROUTE.rejectDocument, checkAuth, (req, res) => {
+    try {
+        let data = req.body;
+        if (!data || data === "" || typeof data === "function" || typeof data === "string" || data === null) {
+            return util.sendJson(res, { message: "failed: payload is required" }, 400)
+        }
+        if (Object.entries(data).length === 0) {
+            return util.sendJson(res, { message: "rejecting of document require a valid payload but got none" }, 404)
+        }
+        return DOCUMENT.rejectDocument(res, data)
+
+    } catch (err) {
+        return util.sendJson(res, { message: err.message }, 500)
+    }
+})
+
 
 export const editDocument = router.put(API_ROUTE.editDocument, checkAuth, (req, res) => {
     try {

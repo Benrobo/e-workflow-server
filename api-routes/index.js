@@ -22,11 +22,16 @@ const API_ROUTE = {
     deleteGroupMembers: "/api/user/groups/deleteMemebers",
     deleteGroup: "/api/user/groups/deleteGroup",
     addDocument: "/api/user/documents/add",
+    addFeedback: "/api/documents/feedback/add",
+    getDocFeedBack: "/api/documents/feedback/all",
     editDocument: "/api/user/documents/edit",
     deleteDocument: "/api/user/documents/delete",
     getAllDocs: "/api/documents/all",
     getDocsById: "/api/documents/id",
+    getDocsByUserId: "/api/documents/user/id",
     getDocsGroupId: "/api/documents/groups/id",
+    approveDocument: "/api/document/approve",
+    rejectDocument: "/api/document/reject",
 }
 
 export default API_ROUTE;
