@@ -1,17 +1,39 @@
-import dotenv from "dotenv"
-import { app, PATH, FS, __dirname } from "./helpers/global.js"
-import bodyParser from "body-parser"
-import cors from "cors"
-import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js"
-import { getUsers, getUsersById } from "./routes/users.js"
-import { createToken, getAllToken, deleteSpecificToken } from "./routes/tokens.js"
-import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js"
-import { setPermission } from "./routes/permissions.js"
-import { mailSender } from "./routes/sendMail.js"
-import { getGroupsByUserId, createGroup, addMembers, editGroup, deleteGroupMembers, deleteGroup, getGroupMembers } from "./routes/groupsRoute.js"
-import { getAllDocs, getDocsId, getDocsByUserId, addDocument, editDocument, deleteDocument, addFeedback, getDocFeedback, approveDocument, rejectDocument } from "./routes/documentsRoute.js"
-
-
+import dotenv from "dotenv";
+import { app, PATH, FS, __dirname } from "./helpers/global.js";
+import bodyParser from "body-parser";
+import cors from "cors";
+import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js";
+import { getUsers, getUsersById } from "./routes/users.js";
+import {
+  createToken,
+  getAllToken,
+  deleteSpecificToken,
+} from "./routes/tokens.js";
+import { approveRegRequest, rejectRegRequest } from "./routes/grantRequest.js";
+import { setPermission } from "./routes/permissions.js";
+import { mailSender } from "./routes/sendMail.js";
+import {
+  getGroupsByUserId,
+  createGroup,
+  addMembers,
+  editGroup,
+  deleteGroupMembers,
+  deleteGroup,
+  getGroupMembers,
+} from "./routes/groupsRoute.js";
+import {
+  getAllDocs,
+  getDocsId,
+  getDocsByUserId,
+  addDocument,
+  editDocument,
+  deleteDocument,
+  addFeedback,
+  getDocFeedback,
+  approveDocument,
+  rejectDocument,
+  deleteFeedback,
+} from "./routes/documentsRoute.js";
 
 dotenv.config();
 // main middlewares
@@ -42,8 +64,8 @@ app.use(registerAdmin);
 app.use(logInUsers);
 
 // users
-app.use(getUsers)
-app.use(getUsersById)
+app.use(getUsers);
+app.use(getUsersById);
 
 // Tokens
 app.use(createToken);
@@ -71,13 +93,12 @@ app.use(getDocsByUserId);
 app.use(addDocument);
 app.use(addFeedback);
 app.use(getDocFeedback);
+app.use(deleteFeedback);
 app.use(approveDocument);
 app.use(rejectDocument);
 app.use(editDocument);
 app.use(deleteDocument);
 // app.use(addDocument);
-
-
 
 // listen on a htp port to run and start the server
 const PORT = process.env.PORT || 5000;
