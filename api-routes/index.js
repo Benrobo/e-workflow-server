@@ -8,6 +8,8 @@ const API_ROUTE = {
   changePermission: "/api/staff/permission/edit",
   getAllUsers: "/api/users/all",
   getUsersById: "/api/users/id",
+  updateAccount: "/api/users/account/update",
+  deleteAccount: "/api/users/account/delete",
   createToken: "/api/token/generate",
   getTokens: "/api/token/getToken",
   deleteToken: "/api/token/deleteToken",

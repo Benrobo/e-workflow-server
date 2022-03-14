@@ -3,7 +3,12 @@ import { app, PATH, FS, __dirname } from "./helpers/global.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { registerUser, registerAdmin, logInUsers } from "./routes/auth.js";
-import { getUsers, getUsersById } from "./routes/users.js";
+import {
+  deleteAccount,
+  getUsers,
+  getUsersById,
+  updateAccount,
+} from "./routes/users.js";
 import {
   createToken,
   getAllToken,
@@ -66,6 +71,8 @@ app.use(logInUsers);
 // users
 app.use(getUsers);
 app.use(getUsersById);
+app.use(updateAccount);
+app.use(deleteAccount);
 
 // Tokens
 app.use(createToken);
