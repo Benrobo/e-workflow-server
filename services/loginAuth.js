@@ -39,6 +39,10 @@ export default class LogInAuth {
                     if (util.compareHash(data.password, result.rows[0].hash) === false) {
                         return util.sendJson(res, { error: true, message: "password given is incorrect" }, 403)
                     }
+                    // Only logged in staff whoes account is approved
+                    if (result.rows[0].userStatus === "pending" && result.rows[0].type === "staff") {
+                        return util.sendJson(res, { error: true, message: "Unauthorized: account is in pending state" }, 401)
+                    }
 
                     // update data
                     const tokenPayload = {
