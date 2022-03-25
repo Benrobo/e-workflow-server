@@ -62,3 +62,22 @@
     "token" TEXT NOT NULL,
     "issued_at" TEXT NOT NULL
 );
+
+6. CREATE TABLE "notifications"(
+    "id" TEXT NOT NULL  unique primary key,
+    "userId" TEXT NOT NULL,
+    "staffId" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "isSeen" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "issued_at" TEXT NOT NULL
+);
+
+7. CREATE TABLE "signatures"(
+    "id" TEXT NOT NULL  unique primary key,
+    "documentId" TEXT NOT NULL,
+    "staffId" TEXT NOT NULL,
+    "documentType" TEXT NOT NULL,
+    "hash" TEXT NOT NULL,
+    "issued_at" TEXT NOT NULL
+);

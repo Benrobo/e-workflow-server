@@ -5,6 +5,7 @@ import { util, db } from "../helpers/global.js"
 //   [ 1 ] -> READ/WRITE : normal staffs ( Course Cordinators)
 //   [ 2 ] -> READ/WRITE : staff with higher responsibility ( HODS, School Officer )
 //   [ 3 ] -> READ/WRITE/EXECUTE : admins only
+//   [ 4 ] -> READ/WRITE/EXECUTE : deans only (for document approval)
 
 
 export default class Permission {
@@ -37,7 +38,7 @@ export default class Permission {
             if (typeof payload.permissionLevel === "number" && payload.permissionLevel < 1) {
                 return util.sendJson(res, { error: true, message: "permission level cant be less than 1 or 0" }, 403)
             }
-            if (typeof payload.permissionLevel === "number" && payload.permissionLevel > 3) {
+            if (typeof payload.permissionLevel === "number" && payload.permissionLevel > 5) {
                 return util.sendJson(res, { error: true, message: "permission level cant be greater than 3" }, 403)
             }
 
