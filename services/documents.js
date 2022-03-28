@@ -1,5 +1,31 @@
 import { db, util } from "../helpers/global.js";
 
+/**
+ * 
+  Course form
+    Hod *
+    Course advisor 
+    School Officer 
+
+  Final project
+    Supervisor 
+    HOD *
+    External Supervisor
+ */
+
+//  @Permissions_State (documents)
+//  [Levels]
+//   [ 1 ] -> READ/WRITE : normal staffs ( Course Cordinators)
+//   [ 2 ] -> READ/WRITE : staff with higher responsibility ( HODS)
+//   [ 3 ] -> READ/WRITE/EXECUTE/HighPermission : admins only
+//   [ 4 ] -> READ/WRITE/EXECUTE : supervisor only
+//   [ 5 ] -> READ/WRITE/EXECUTE : school officer only (for document approval / signing)
+//   [ 6 ] -> READ/WRITE/EXECUTE : course advisor only (for document approval / signing)
+//   [ 7 ] -> READ/WRITE/EXECUTE : External Supervisor only (for document approval / signing)
+
+// Course form - School officer -> Course Advisor -> HOD
+// Final year- Supervisor -> External examiner -> HOD
+
 export default class Document {
   allDocs(res) {
     if (res === "" || res === undefined || res === null) {
@@ -175,13 +201,13 @@ export default class Document {
           }
 
           const q2 = `
-                            SELECT 
+                    SELECT *
 
-                            FROM 
-                                documents 
-                            WHERE 
-                                "userId"=$1
-                            `;
+                    FROM 
+                        documents 
+                    WHERE 
+                        "userId"=$1
+                    `;
           db.query(q2, [userId.trim()], (err, data2) => {
             if (err) {
               return util.sendJson(
@@ -261,6 +287,8 @@ export default class Document {
     }
   }
 
+  // Add final
+
   addFYP(res, payload) {
     if (res === "" || res === undefined || res === null) {
       return "submitting documents requires a valid {res} object but got none";
@@ -270,7 +298,9 @@ export default class Document {
       if (
         payload.title === undefined ||
         payload.userId === undefined ||
-        payload.staffId === undefined ||
+        payload.supervisor === undefined ||
+        payload.externalSupervisor === undefined ||
+        payload.HOD === undefined ||
         payload.groupId === undefined ||
         payload.courseName === undefined ||
         payload.courseType === undefined ||
@@ -282,7 +312,7 @@ export default class Document {
           {
             error: true,
             message:
-              "payload requires a valid fields [userId,staffId,groupId,courseName,courseType,title,file,documentType] but got undefined",
+              "payload requires a valid fields [userId,supervisor,externalSupervisor,HOD,groupId,courseName,courseType,title,file,documentType] but got undefined",
           },
           400
         );
@@ -301,10 +331,24 @@ export default class Document {
           400
         );
       }
-      if (payload.staffId === "") {
+      if (payload.supervisor === "") {
         return util.sendJson(
           res,
-          { error: true, message: "staffId cant be empty" },
+          { error: true, message: "supervisor cant be empty" },
+          400
+        );
+      }
+      if (payload.externalSupervisor === "") {
+        return util.sendJson(
+          res,
+          { error: true, message: "externalSupervisor cant be empty" },
+          400
+        );
+      }
+      if (payload.HOD === "") {
+        return util.sendJson(
+          res,
+          { error: true, message: "HOD cant be empty" },
           400
         );
       }
@@ -367,10 +411,24 @@ export default class Document {
         );
       }
 
+      // unpack data
+      const {
+        title,
+        userId,
+        supervisor,
+        externalSupervisor,
+        HOD,
+        groupId,
+        courseName,
+        courseType,
+        file,
+        documentType,
+      } = payload;
+
       // check if user exist
       try {
         const sql = `SELECT * FROM users WHERE "userId"=$1`;
-        db.query(sql, [payload.userId], (err, result) => {
+        db.query(sql, [userId.trim()], (err, result) => {
           if (err) {
             return util.sendJson(
               res,
@@ -390,20 +448,16 @@ export default class Document {
             );
           }
 
-          // check if user submitting document isnt a staff
-          if (result.rows[0].type === "staff") {
-            return util.sendJson(
-              res,
-              {
-                error: true,
-                message: "only students are meant to submit document not staff",
-              },
-              400
-            );
-          }
+          // check if school officer exists in database
+          const check1 = `SELECT * FROM users WHERE "userId"=$1`;
+          // check if course advisor exists in database
+          const check2 = `SELECT * FROM users WHERE "userId"=$1`;
+          // check if HOD exists in database
+          const check3 = `SELECT * FROM users WHERE "userId"=$1`;
 
-          // check if staff/cordinator exists
-          db.query(sql, [payload.staffId], (err, data1) => {
+          // CHECK 1
+
+          db.query(check1, [supervisor.trim()], (err, data1) => {
             if (err) {
               return util.sendJson(
                 res,
@@ -417,25 +471,26 @@ export default class Document {
                 res,
                 {
                   error: true,
-                  message:
-                    "failed to submit document: cordinator doesnt exists",
+                  message: "failed to submit document: supervisor doesnt exist",
                 },
                 404
               );
             }
-
-            // check if user submitting document is a staff
-            if (data1.rows[0].type !== "staff") {
+            // if exist, check if it has a documentPermission of 3
+            if (data1.rowCount > 0 && data1.rows[0].documentPermissions !== 4) {
               return util.sendJson(
                 res,
-                { error: true, message: "cordinator added isnt a staff" },
-                400
+                {
+                  error: true,
+                  message: "the staff you added isnt a supervisor.",
+                },
+                403
               );
             }
 
-            // check if group exists
-            const sql2 = `SELECT * FROM groups WHERE id=$1`;
-            db.query(sql2, [payload.groupId.trim()], (err, data2) => {
+            // CHECK 2
+
+            db.query(check2, [externalSupervisor.trim()], (err, data2) => {
               if (err) {
                 return util.sendJson(
                   res,
@@ -449,19 +504,82 @@ export default class Document {
                   res,
                   {
                     error: true,
-                    message: "the group you added doesnt exists.",
+                    message:
+                      "failed to submit document: external supervisor doesnt exist",
                   },
                   404
                 );
               }
 
-              // check if student/user trying to submit document for a specific group exist in that group
+              // if exist, check if it has a documentPermission of 7
+              if (
+                data2.rowCount > 0 &&
+                data2.rows[0].documentPermissions !== 7
+              ) {
+                return util.sendJson(
+                  res,
+                  {
+                    error: true,
+                    message: "the staff you added isnt external supervisor.",
+                  },
+                  403
+                );
+              }
 
-              const sql3 = `SELECT * FROM groups WHERE id=$1 AND "memberId"=$2`;
-              db.query(
-                sql3,
-                [payload.groupId.trim(), payload.userId.trim()],
-                (err, data3) => {
+              // CHECK 3
+              db.query(check3, [HOD.trim()], (err, data3) => {
+                if (err) {
+                  return util.sendJson(
+                    res,
+                    { error: true, message: err.message },
+                    400
+                  );
+                }
+
+                if (data3.rowCount === 0) {
+                  return util.sendJson(
+                    res,
+                    {
+                      error: true,
+                      message: "failed to submit document: HOD doesnt exist",
+                    },
+                    404
+                  );
+                }
+
+                // if exist, check if it has a documentPermission of 5
+                if (
+                  data3.rowCount > 0 &&
+                  data3.rows[0].documentPermissions !== 2
+                ) {
+                  return util.sendJson(
+                    res,
+                    {
+                      error: true,
+                      message: "the staff you added isnt an H.O.D.",
+                    },
+                    403
+                  );
+                }
+
+                // Continue if all went well
+
+                // check if user submitting document isnt a staff
+                if (result.rows[0].type === "staff") {
+                  return util.sendJson(
+                    res,
+                    {
+                      error: true,
+                      message:
+                        "only students are meant to submit document not staff",
+                    },
+                    400
+                  );
+                }
+
+                // check if group exists
+                const sql2 = `SELECT * FROM groups WHERE id=$1`;
+                db.query(sql2, [groupId.trim()], (err, data4) => {
                   if (err) {
                     return util.sendJson(
                       res,
@@ -470,30 +588,24 @@ export default class Document {
                     );
                   }
 
-                  if (data3.rowCount === 0) {
+                  if (data4.rowCount === 0) {
                     return util.sendJson(
                       res,
                       {
                         error: true,
-                        message:
-                          "fialed: cant submit document for a group you dont belong to.",
+                        message: "the group you added doesnt exists.",
                       },
-                      403
+                      404
                     );
                   }
 
-                  // check if document which the group is trying to submit already exists
-                  const sql3 = `SELECT * FROM documents WHERE "groupId"=$1 AND "documentType"=$2 AND title=$3 AND "courseType"=$4 AND "courseName"=$5`;
+                  // check if student/user trying to submit document for a specific group exist in that group
+
+                  const sql3 = `SELECT * FROM groups WHERE id=$1 AND "memberId"=$2`;
                   db.query(
                     sql3,
-                    [
-                      payload.groupId,
-                      payload.documentType,
-                      payload.title,
-                      payload.courseType,
-                      payload.courseName,
-                    ],
-                    (err, data4) => {
+                    [payload.groupId.trim(), payload.userId.trim()],
+                    (err, data5) => {
                       if (err) {
                         return util.sendJson(
                           res,
@@ -502,51 +614,30 @@ export default class Document {
                         );
                       }
 
-                      if (data4.rowCount > 0) {
+                      if (data5.rowCount === 0) {
                         return util.sendJson(
                           res,
                           {
                             error: true,
                             message:
-                              "document youre trying to submit already exist.",
+                              "failed: cant submit document for a group you dont belong to.",
                           },
-                          200
+                          403
                         );
                       }
 
-                      // save document in database
-                      const {
-                        title,
-                        documentType,
-                        userId,
-                        groupId,
-                        staffId,
-                        courseName,
-                        courseType,
-                        file,
-                      } = payload;
-                      const fileData = file.data;
-                      const id = util.genId();
-                      const status = "pending";
-                      const date = util.formatDate();
-
-                      const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","groupId","staffId","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
+                      // check if document which the group is trying to submit already exists
+                      const sql3 = `SELECT * FROM documents WHERE "groupId"=$1 AND "documentType"=$2 AND title=$3 AND "courseType"=$4 AND "courseName"=$5`;
                       db.query(
-                        sql4,
+                        sql3,
                         [
-                          id.trim(),
-                          title.trim(),
-                          documentType.trim(),
-                          courseType.trim(),
-                          courseName.trim(),
-                          userId.trim(),
-                          groupId.trim(),
-                          staffId.trim(),
-                          status.trim(),
-                          fileData.trim(),
-                          date.trim(),
+                          payload.groupId,
+                          payload.documentType,
+                          payload.title,
+                          payload.courseType,
+                          payload.courseName,
                         ],
-                        (err) => {
+                        (err, data6) => {
                           if (err) {
                             return util.sendJson(
                               res,
@@ -555,20 +646,65 @@ export default class Document {
                             );
                           }
 
-                          return util.sendJson(
-                            res,
-                            {
-                              error: false,
-                              message: "document submitted successfully.",
-                            },
-                            200
+                          if (data6.rowCount > 0) {
+                            return util.sendJson(
+                              res,
+                              {
+                                error: true,
+                                message:
+                                  "document youre trying to submit already exist.",
+                              },
+                              200
+                            );
+                          }
+
+                          // save document in database
+                          const fileData = file.data;
+                          const id = util.genId();
+                          const status = "pending";
+                          const date = util.formatDate();
+
+                          const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","groupId","staffId","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
+                          db.query(
+                            sql4,
+                            [
+                              id.trim(),
+                              title.trim(),
+                              documentType.trim(),
+                              courseType.trim(),
+                              courseName.trim(),
+                              userId.trim(),
+                              groupId.trim(),
+                              [supervisor, externalSupervisor, HOD],
+                              status.trim(),
+                              fileData.trim(),
+                              date.trim(),
+                            ],
+                            (err) => {
+                              if (err) {
+                                return util.sendJson(
+                                  res,
+                                  { error: true, message: err.message },
+                                  400
+                                );
+                              }
+
+                              return util.sendJson(
+                                res,
+                                {
+                                  error: false,
+                                  message: "document submitted successfully.",
+                                },
+                                200
+                              );
+                            }
                           );
                         }
                       );
                     }
                   );
-                }
-              );
+                });
+              });
             });
           });
         });
@@ -579,6 +715,8 @@ export default class Document {
     }
   }
 
+  // Add COURSE FORM
+
   addCF(res, payload) {
     if (res === "" || res === undefined || res === null) {
       return "submitting documents requires a valid {res} object but got none";
@@ -588,7 +726,9 @@ export default class Document {
       if (
         payload.title === undefined ||
         payload.userId === undefined ||
-        payload.staffId === undefined ||
+        payload.schoolOfficer === undefined ||
+        payload.courseAdvisor === undefined ||
+        payload.HOD === undefined ||
         payload.courseName === undefined ||
         payload.courseType === undefined ||
         payload.file === undefined ||
@@ -618,17 +758,24 @@ export default class Document {
           400
         );
       }
-      if (payload.staffId === "") {
+      if (payload.schoolOfficer === "") {
         return util.sendJson(
           res,
-          { error: true, message: "staffId cant be empty" },
+          { error: true, message: "school officer cant be empty" },
           400
         );
       }
-      if (payload.courseType === "") {
+      if (payload.courseAdvisor === "") {
         return util.sendJson(
           res,
-          { error: true, message: "courseType cant be empty" },
+          { error: true, message: "course advisor cant be empty" },
+          400
+        );
+      }
+      if (payload.HOD === "") {
+        return util.sendJson(
+          res,
+          { error: true, message: "HOD cant be empty" },
           400
         );
       }
@@ -677,10 +824,22 @@ export default class Document {
         );
       }
 
+      // unpack data
+      const {
+        title,
+        userId,
+        schoolOfficer,
+        courseAdvisor,
+        HOD,
+        courseName,
+        courseType,
+        file,
+        documentType,
+      } = payload;
       // check if user exist
       try {
         const sql = `SELECT * FROM users WHERE "userId"=$1`;
-        db.query(sql, [payload.userId], (err, result) => {
+        db.query(sql, [userId.trim()], (err, result) => {
           if (err) {
             return util.sendJson(
               res,
@@ -696,24 +855,18 @@ export default class Document {
                 error: true,
                 message: "failed to submit document: student doesnt exist",
               },
-              400
+              404
             );
           }
 
-          // check if user submitting document isnt a staff
-          if (result.rows[0].type === "staff") {
-            return util.sendJson(
-              res,
-              {
-                error: true,
-                message: "only students are meant to submit document not staff",
-              },
-              400
-            );
-          }
+          // check if school officer exists in database
+          const check1 = `SELECT * FROM users WHERE "userId"=$1`;
+          // check if course advisor exists in database
+          const check2 = `SELECT * FROM users WHERE "userId"=$1`;
+          // check if HOD exists in database
+          const check3 = `SELECT * FROM users WHERE "userId"=$1`;
 
-          // check if staff/cordinator exists
-          db.query(sql, [payload.staffId], (err, data1) => {
+          db.query(check1, [schoolOfficer.trim()], (err, data1) => {
             if (err) {
               return util.sendJson(
                 res,
@@ -728,33 +881,60 @@ export default class Document {
                 {
                   error: true,
                   message:
-                    "failed to submit document: cordinator doesnt exists",
+                    "failed to submit document: schoolOfficer doesnt exist",
                 },
                 404
               );
             }
-
-            // check if user submitting document isnt a staff
-            if (data1.rows[0].type !== "staff") {
+            // if exist, check if it has a documentPermission of 5
+            if (data1.rowCount > 0 && data1.rows[0].documentPermissions !== 5) {
               return util.sendJson(
                 res,
-                { error: true, message: "cordinator added isnt a staff" },
-                400
+                {
+                  error: true,
+                  message: "the staff you added isnt a school officer.",
+                },
+                403
               );
             }
 
-            // check if document which the user/student is trying to submit already exists
-            const sql3 = `SELECT * FROM documents WHERE "userId"=$1 AND "documentType"=$2 AND title=$3 AND "courseType"=$4 AND "courseName"=$5`;
-            db.query(
-              sql3,
-              [
-                payload.userId,
-                payload.documentType,
-                payload.title,
-                payload.courseType,
-                payload.courseName,
-              ],
-              (err, data3) => {
+            db.query(check2, [courseAdvisor.trim()], (err, data2) => {
+              if (err) {
+                return util.sendJson(
+                  res,
+                  { error: true, message: err.message },
+                  400
+                );
+              }
+
+              if (data2.rowCount === 0) {
+                return util.sendJson(
+                  res,
+                  {
+                    error: true,
+                    message:
+                      "failed to submit document: course advisor doesnt exist",
+                  },
+                  404
+                );
+              }
+
+              // if exist, check if it has a documentPermission of 5
+              if (
+                data2.rowCount > 0 &&
+                data2.rows[0].documentPermissions !== 6
+              ) {
+                return util.sendJson(
+                  res,
+                  {
+                    error: true,
+                    message: "the staff you added isnt a course advisor.",
+                  },
+                  403
+                );
+              }
+
+              db.query(check3, [HOD.trim()], (err, data3) => {
                 if (err) {
                   return util.sendJson(
                     res,
@@ -763,48 +943,59 @@ export default class Document {
                   );
                 }
 
-                if (data3.rowCount > 0) {
+                if (data3.rowCount === 0) {
                   return util.sendJson(
                     res,
                     {
                       error: true,
-                      message: "document youre trying to submit already exist.",
+                      message: "failed to submit document: HOD doesnt exist",
                     },
-                    200
+                    404
                   );
                 }
 
-                // save document in database
-                const {
-                  title,
-                  documentType,
-                  userId,
-                  staffId,
-                  courseName,
-                  courseType,
-                  file,
-                } = payload;
-                const fileData = file.data;
-                const id = util.genId();
-                const status = "pending";
-                const date = util.formatDate();
+                // if exist, check if it has a documentPermission of 5
+                if (
+                  data3.rowCount > 0 &&
+                  data3.rows[0].documentPermissions !== 2
+                ) {
+                  return util.sendJson(
+                    res,
+                    {
+                      error: true,
+                      message: "the staff you added isnt an H.O.D.",
+                    },
+                    403
+                  );
+                }
 
-                const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","staffId","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`;
+                // /Continue if all went well
+
+                // check if user submitting document isnt a staff based on the first query above
+                if (result.rows[0].type === "staff") {
+                  return util.sendJson(
+                    res,
+                    {
+                      error: true,
+                      message:
+                        "only students are meant to submit document not staff",
+                    },
+                    400
+                  );
+                }
+
+                // check if document which the user/student is trying to submit already exists
+                const sql3 = `SELECT * FROM documents WHERE "userId"=$1 AND "documentType"=$2 AND title=$3 AND "courseType"=$4 AND "courseName"=$5`;
                 db.query(
-                  sql4,
+                  sql3,
                   [
-                    id.trim(),
-                    title.trim(),
+                    userId.trim(),
                     documentType.trim(),
+                    title.trim(),
                     courseType.trim(),
                     courseName.trim(),
-                    userId.trim(),
-                    staffId.trim(),
-                    status.trim(),
-                    fileData.trim(),
-                    date.trim(),
                   ],
-                  (err) => {
+                  (err, data4) => {
                     if (err) {
                       return util.sendJson(
                         res,
@@ -813,18 +1004,62 @@ export default class Document {
                       );
                     }
 
-                    return util.sendJson(
-                      res,
-                      {
-                        error: false,
-                        message: "document submitted successfully.",
-                      },
-                      200
+                    if (data4.rowCount > 0) {
+                      return util.sendJson(
+                        res,
+                        {
+                          error: true,
+                          message:
+                            "document youre trying to submit already exist.",
+                        },
+                        200
+                      );
+                    }
+
+                    // save document in database
+                    const fileData = file.data;
+                    const id = util.genId();
+                    const status = "pending";
+                    const date = util.formatDate();
+
+                    const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","staffId","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`;
+                    db.query(
+                      sql4,
+                      [
+                        id.trim(),
+                        title.trim(),
+                        documentType.trim(),
+                        courseType.trim(),
+                        courseName.trim(),
+                        userId.trim(),
+                        [schoolOfficer, courseAdvisor, HOD],
+                        status.trim(),
+                        fileData.trim(),
+                        date.trim(),
+                      ],
+                      (err) => {
+                        if (err) {
+                          return util.sendJson(
+                            res,
+                            { error: true, message: err.message },
+                            400
+                          );
+                        }
+
+                        return util.sendJson(
+                          res,
+                          {
+                            error: false,
+                            message: "document submitted successfully.",
+                          },
+                          200
+                        );
+                      }
                     );
                   }
                 );
-              }
-            );
+              });
+            });
           });
         });
       } catch (err) {

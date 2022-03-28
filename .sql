@@ -34,6 +34,20 @@
 
 
 
+-- 3. CREATE TABLE "documents"(
+--     id TEXT NOT NULL,
+--     "title" TEXT NOT NULL,
+--     "documentType" TEXT NOT NULL,
+--     "courseType" TEXT NOT NULL,
+--     "courseName" TEXT NOT NULL,
+--     "userId" TEXT , -- this would be filled up when submitting course form
+--     "groupId" TEXT, -- this would be filled up when submitting final year project
+--     "staffId" TEXT NOT NULL,
+--     "status" TEXT NOT NULL,
+--     "file" TEXT NOT NULL,
+--     "created_at" TEXT NOT NULL
+-- );
+
 3. CREATE TABLE "documents"(
     id TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -42,7 +56,7 @@
     "courseName" TEXT NOT NULL,
     "userId" TEXT , -- this would be filled up when submitting course form
     "groupId" TEXT, -- this would be filled up when submitting final year project
-    "staffId" TEXT NOT NULL,
+    "staffId" TEXT [],
     "status" TEXT NOT NULL,
     "file" TEXT NOT NULL,
     "created_at" TEXT NOT NULL
@@ -66,7 +80,7 @@
 6. CREATE TABLE "notifications"(
     "id" TEXT NOT NULL  unique primary key,
     "userId" TEXT NOT NULL,
-    "staffId" TEXT NOT NULL,
+    "staffId" TEXT [],
     "message" TEXT NOT NULL,
     "isSeen" TEXT NOT NULL,
     "type" TEXT NOT NULL,
