@@ -33,24 +33,28 @@ export default class Document {
     }
     try {
       const sql = `
-                        SELECT 
-                            documents.id,
-                            documents.title,
-                            documents."documentType",
-                            documents."courseType",
-                            documents."courseName",
-                            documents."userId",
-                            documents."groupId",
-                            documents.status,
-                            documents."staffId",
-                            users."userName",
-                            documents.file
-                        FROM 
-                            documents
-                        INNER JOIN
-                            users
-                        ON
-                            users."userId"=documents."staffId"
+                  SELECT 
+                      documents.id,
+                      documents.title,
+                      documents."documentType",
+                      documents."courseType",
+                      documents."courseName",
+                      documents."userId",
+                      documents."groupId",
+                      documents.status,
+                      documents."HOD",
+                      documents."supervisor",
+                      documents."externalSupervisor",
+                      documents."schoolOfficer",
+                      documents."courseAdvisor",
+                      users."userName",
+                      documents.file
+                  FROM 
+                      documents
+                  INNER JOIN
+                      users
+                  ON
+                      users."userId"=documents."HOD"
                         `;
       db.query(sql, (err, result) => {
         if (err) {
@@ -114,7 +118,7 @@ export default class Document {
                             documents."userId",
                             documents."groupId",
                             documents.status,
-                            documents."staffId",
+                            documents."HOD",
                             users."userName",
                             users.type,
                             users."documentPermissions",
@@ -124,7 +128,7 @@ export default class Document {
                         INNER JOIN
                             users
                         ON
-                            users."userId"=documents."staffId"
+                            users."userId"=documents."HOD"
                         WHERE
                             documents.id=$1
                         `;
@@ -286,9 +290,7 @@ export default class Document {
       }
     }
   }
-
   // Add final
-
   addFYP(res, payload) {
     if (res === "" || res === undefined || res === null) {
       return "submitting documents requires a valid {res} object but got none";
@@ -664,7 +666,7 @@ export default class Document {
                           const status = "pending";
                           const date = util.formatDate();
 
-                          const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","groupId","staffId","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
+                          const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId", "groupId","supervisor", "externalSupervisor", "HOD","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`;
                           db.query(
                             sql4,
                             [
@@ -675,7 +677,9 @@ export default class Document {
                               courseName.trim(),
                               userId.trim(),
                               groupId.trim(),
-                              [supervisor, externalSupervisor, HOD],
+                              supervisor,
+                              externalSupervisor,
+                              HOD,
                               status.trim(),
                               fileData.trim(),
                               date.trim(),
@@ -714,9 +718,7 @@ export default class Document {
       }
     }
   }
-
   // Add COURSE FORM
-
   addCF(res, payload) {
     if (res === "" || res === undefined || res === null) {
       return "submitting documents requires a valid {res} object but got none";
@@ -1022,7 +1024,7 @@ export default class Document {
                     const status = "pending";
                     const date = util.formatDate();
 
-                    const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","staffId","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`;
+                    const sql4 = `INSERT INTO documents(id,title,"documentType","courseType","courseName","userId","schoolOfficer", "courseAdvisor", "HOD","status","file","created_at") VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`;
                     db.query(
                       sql4,
                       [
@@ -1032,7 +1034,9 @@ export default class Document {
                         courseType.trim(),
                         courseName.trim(),
                         userId.trim(),
-                        [schoolOfficer, courseAdvisor, HOD],
+                        schoolOfficer,
+                        courseAdvisor,
+                        HOD,
                         status.trim(),
                         fileData.trim(),
                         date.trim(),
