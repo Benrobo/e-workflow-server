@@ -120,6 +120,7 @@ export default class Document {
                             documents.status,
                             documents."HOD",
                             users."userName",
+                            users."userName",
                             users.type,
                             users."documentPermissions",
                             documents.file
@@ -128,7 +129,7 @@ export default class Document {
                         INNER JOIN
                             users
                         ON
-                            users."userId"=documents."HOD"
+                            users."userId"=documents."userId"
                         WHERE
                             documents.id=$1
                         `;
@@ -141,11 +142,45 @@ export default class Document {
             );
           }
 
-          return util.sendJson(
-            res,
-            { error: false, document: result.rows },
-            200
-          );
+          const { id, title, documentType, courseType, courseName, userId, groupId, status, HOD, userName, type, documentPermissions, file } = result.rows[0]
+
+          // getting HOD info from users table
+
+          const q1 = `SELECT * FROM users WHERE "userId"=$1`
+          db.query(q1, [HOD], (err, data1) => {
+            if (err) {
+              return util.sendJson(
+                res,
+                { error: true, message: err.message },
+                400
+              );
+            }
+
+            const sendData = {
+              id,
+              title,
+              documentType,
+              courseType,
+              courseName,
+              userId,
+              groupId,
+              status,
+              HOD,
+              hodName: data1.rows[0].userName,
+              studentName: userName,
+              type,
+              documentPermissions: data1.rows[0].documentPermissions,
+              file
+            }
+
+            return util.sendJson(
+              res,
+              { error: false, document: [sendData] },
+              200
+            );
+          })
+
+
         });
       } catch (err) {
         console.log(err);

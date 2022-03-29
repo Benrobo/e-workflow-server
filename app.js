@@ -39,6 +39,7 @@ import {
   rejectDocument,
   deleteFeedback,
 } from "./routes/documentsRoute.js";
+import { addSignature, deleteSignature } from "./routes/signature.js"
 
 dotenv.config();
 // main middlewares
@@ -106,6 +107,10 @@ app.use(rejectDocument);
 app.use(editDocument);
 app.use(deleteDocument);
 // app.use(addDocument);
+
+// Signature
+app.use(addSignature)
+app.use(deleteSignature)
 
 // listen on a htp port to run and start the server
 const PORT = process.env.PORT || 5000;
