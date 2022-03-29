@@ -33,6 +33,73 @@ function docPermission(docPermission) {
 
 class Signature {
 
+    get(res, payload) {
+        if (res === "" || res === undefined || res === null) {
+            return "fetching document requires a valid {res} object but got none";
+        }
+
+        if (payload && Object.entries(payload).length > 0) {
+            if (payload.documentId === undefined) {
+                return util.sendJson(
+                    res,
+                    {
+                        error: true,
+                        message:
+                            "payload requires a valid fields [documentId] but got undefined",
+                    },
+                    400
+                );
+            }
+
+            if (payload.documentId === "") {
+                return util.sendJson(
+                    res,
+                    { error: true, message: "documentId cant be empty" },
+                    400
+                );
+            }
+
+            const { documentId } = payload
+
+            const sql = `
+                SELECT
+                    signatures."image",
+                    signatures.id,
+                    signatures."staffId",
+                    users."userName",
+                    users."documentPermissions"
+                FROM 
+                    signatures
+                INNER JOIN
+                    users
+                ON
+                    users."userId"=signatures."staffId"
+                WHERE
+                    signatures."documentId"=$1
+            `
+            db.query(sql, [documentId.trim()], (err, data) => {
+                if (err) {
+                    return util.sendJson(
+                        res,
+                        { error: true, message: err.message },
+                        400
+                    );
+                }
+
+                return util.sendJson(
+                    res,
+                    {
+                        error: false,
+                        data: data.rows,
+                    },
+                    400
+                );
+
+            })
+
+        }
+    }
+
     add(res, payload) {
         if (res === "" || res === undefined || res === null) {
             return "fetching document requires a valid {res} object but got none";
@@ -261,8 +328,8 @@ class Signature {
                                         if (staffSignatureLength === 2) {
                                             // update document table 
                                             const docStatus = "approved"
-                                            const updatesql = `UPDATE documents SET status=$1`
-                                            return db.query(updatesql, [docStatus], (err) => {
+                                            const updatesql = `UPDATE documents SET status=$1 WHERE id=$2`
+                                            return db.query(updatesql, [docStatus, documentId.trim()], (err) => {
                                                 if (err) {
                                                     return util.sendJson(
                                                         res,
@@ -334,7 +401,7 @@ class Signature {
                                                         return util.sendJson(
                                                             res,
                                                             {
-                                                                error: true,
+                                                                error: false,
                                                                 message: "signature added successfully: document approved",
                                                             },
                                                             200
@@ -350,7 +417,7 @@ class Signature {
 
                                         const payload = {
                                             from: "E-Flow",
-                                            to: "alumonabenaiah71@gmail.com",
+                                            to: mail,
                                             subject: "Document Approved",
                                             body: `
                                             <h1>Hello: ${userName}</h1>
@@ -414,7 +481,7 @@ class Signature {
                                                 return util.sendJson(
                                                     res,
                                                     {
-                                                        error: true,
+                                                        error: false,
                                                         message: "signature added successfully",
                                                     },
                                                     200
@@ -535,7 +602,7 @@ class Signature {
 
     delete(res, payload) {
         if (payload && Object.entries(payload).length > 0) {
-            if (payload.documentId === undefined || payload.staffId === undefined || payload.signatureId === undefined) {
+            if (payload.documentId === undefined || payload.staffId === undefined || payload.signatureId === undefined || payload.studentId === undefined) {
                 return util.sendJson(
                     res,
                     {
@@ -568,10 +635,18 @@ class Signature {
                 );
             }
 
+            if (payload.studentId === "") {
+                return util.sendJson(
+                    res,
+                    { error: true, message: "studentId cant be empty" },
+                    400
+                );
+            }
+
 
             try {
 
-                const { documentId, signatureId, staffId } = payload;
+                const { documentId, signatureId, studentId, staffId } = payload;
                 const sql = `SELECT * FROM users WHERE "userId"=$1`;
                 db.query(sql, [staffId.trim()], (err, result) => {
                     if (err) {
@@ -587,13 +662,13 @@ class Signature {
                             res,
                             {
                                 error: true,
-                                message: "failed to save signature: student doesnt exist",
+                                message: "failed to save signature: staff doesnt exist",
                             },
                             400
                         );
                     }
 
-                    // check the usertype cause we dont wanna allow student adding signature
+                    // check the usertype cause we dont wanna allow student deleting signature
                     if (result.rows[0].type === "student") {
                         return util.sendJson(
                             res,
@@ -619,9 +694,9 @@ class Signature {
                         );
                     }
 
-                    // check if document exist
-                    const q1 = `SELECT * FROM documents WHERE id=$1`
-                    db.query(q1, [documentId.trim()], (err, data1) => {
+                    // check if student exist in db
+                    const checkstudent = `SELECT * FROM users WHERE "userId"=$1`
+                    db.query(checkstudent, [studentId.trim()], (err, studentData) => {
                         if (err) {
                             return util.sendJson(
                                 res,
@@ -630,21 +705,20 @@ class Signature {
                             );
                         }
 
-                        if (data1.rowCount === 0) {
+                        if (studentData.rowCount === 0) {
                             return util.sendJson(
                                 res,
                                 {
                                     error: true,
-                                    message: "document doesnt exist, failed to delete signature",
+                                    message: "failed to save signature: student doesnt exist",
                                 },
-                                404
+                                400
                             );
                         }
 
-                        // check if signature exists
-
-                        const q2 = `SELECT * FROM signatures WHERE "id"=$1 AND "staffId"=$2`
-                        db.query(q2, [signatureId.trim(), staffId.trim()], (err, data2) => {
+                        // check if document exist
+                        const q1 = `SELECT * FROM documents WHERE id=$1`
+                        db.query(q1, [documentId.trim()], (err, data1) => {
                             if (err) {
                                 return util.sendJson(
                                     res,
@@ -653,22 +727,21 @@ class Signature {
                                 );
                             }
 
-                            if (data2.rowCount > 0) {
+                            if (data1.rowCount === 0) {
                                 return util.sendJson(
                                     res,
                                     {
                                         error: true,
-                                        message: "your signature already exists for this document",
+                                        message: "document doesnt exist, failed to delete signature",
                                     },
-                                    400
+                                    404
                                 );
                             }
 
-                            // delete signature
+                            // check if signature exists
 
-                            const q3 = `DELETE FROM signatures WHERE id=$1 AND "staffId"=$2 AND "documentId"=$3`
-
-                            db.query(q3, [signatureId.trim(), staffId.trim(), documentId.trim()], (err) => {
+                            const q2 = `SELECT * FROM signatures WHERE "id"=$1 AND "staffId"=$2`
+                            db.query(q2, [signatureId.trim(), staffId.trim()], (err, data2) => {
                                 if (err) {
                                     return util.sendJson(
                                         res,
@@ -677,21 +750,77 @@ class Signature {
                                     );
                                 }
 
-                                return util.sendJson(
-                                    res,
-                                    {
-                                        error: true,
-                                        message: "signature deleted successfully",
-                                    },
-                                    200
-                                );
+                                if (data2.rowCount === 0) {
+                                    return util.sendJson(
+                                        res,
+                                        {
+                                            error: true,
+                                            message: "failed to delete: signature not found.",
+                                        },
+                                        404
+                                    );
+                                }
+
+                                // delete signature
+
+                                const q3 = `DELETE FROM signatures WHERE id=$1 AND "staffId"=$2`
+
+                                db.query(q3, [signatureId.trim(), staffId.trim()], (err) => {
+                                    if (err) {
+                                        return util.sendJson(
+                                            res,
+                                            { error: true, message: err.message },
+                                            400
+                                        );
+                                    }
+
+                                    // deleting the signature would make the document in pending state, so we need to update the document based on the id and also send a notification to the student.
+
+                                    // document update statement
+                                    const q4 = `UPDATE documents SET status=$1 WHERE id=$2`
+                                    const status = "pending"
+                                    db.query(q4, [status, documentId.trim()], (err) => {
+                                        if (err) {
+                                            return util.sendJson(
+                                                res,
+                                                { error: true, message: err.message },
+                                                400
+                                            );
+                                        }
+
+                                        // notification statement
+                                        const id = util.genId()
+                                        const joined = util.formatDate()
+                                        const isSeen = false;
+                                        const type = "document signature"
+                                        const message = `${result.rows[0].userName} (${docPermission(result.rows[0].documentPermissions)}) deleted [her/his] signature from your ${data1.rows[0].documentType === "CF" ? "Course Form Document" : "Final Project Document"} `
+
+                                        const q5 = `INSERT INTO notifications(id, "userId","staffId",message,"isSeen", type, "issued_at") VALUES($1,$2,$3,$4,$5,$6,$7)`
+                                        db.query(q5, [id, studentId.trim(), staffId.trim(), message, isSeen, type, joined], (err) => {
+                                            if (err) {
+                                                return util.sendJson(
+                                                    res,
+                                                    { error: true, message: err.message },
+                                                    400
+                                                );
+                                            }
+
+                                            return util.sendJson(
+                                                res,
+                                                {
+                                                    error: false,
+                                                    message: "signature deleted successfully",
+                                                },
+                                                200
+                                            );
+                                        })
+                                    })
+                                })
                             })
                         })
+
                     })
-
-
                 })
-
             } catch (err) {
                 console.log(err);
                 return util.sendJson(res, { error: true, message: err.message }, 500);

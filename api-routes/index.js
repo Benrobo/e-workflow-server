@@ -33,8 +33,12 @@ const API_ROUTE = {
     getDocsGroupId: "/api/documents/groups/id",
     approveDocument: "/api/document/approve",
     rejectDocument: "/api/document/reject",
+    getSignatures: "/api/signature/get",
     addSignature: "/api/signature/add",
     deleteSignature: "/api/signature/delete",
+    getNotifications: "/api/notifications/get",
+    updateNotification: "/api/notification/update",
+    deleteNotification: "/api/notification/delete",
 };
 
 export default API_ROUTE;

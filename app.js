@@ -40,6 +40,7 @@ import {
   deleteFeedback,
 } from "./routes/documentsRoute.js";
 import { addSignature, deleteSignature } from "./routes/signature.js"
+import { deleteNotification, getNotification, updateNotification } from "./routes/notification.js";
 
 dotenv.config();
 // main middlewares
@@ -111,6 +112,11 @@ app.use(deleteDocument);
 // Signature
 app.use(addSignature)
 app.use(deleteSignature)
+
+// Notification
+app.use(getNotification)
+app.use(updateNotification)
+app.use(deleteNotification)
 
 // listen on a htp port to run and start the server
 const PORT = process.env.PORT || 5000;

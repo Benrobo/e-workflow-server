@@ -142,11 +142,25 @@ export default class Document {
             );
           }
 
-          const { id, title, documentType, courseType, courseName, userId, groupId, status, HOD, userName, type, documentPermissions, file } = result.rows[0]
+          const {
+            id,
+            title,
+            documentType,
+            courseType,
+            courseName,
+            userId,
+            groupId,
+            status,
+            HOD,
+            userName,
+            type,
+            documentPermissions,
+            file,
+          } = result.rows[0];
 
           // getting HOD info from users table
 
-          const q1 = `SELECT * FROM users WHERE "userId"=$1`
+          const q1 = `SELECT * FROM users WHERE "userId"=$1`;
           db.query(q1, [HOD], (err, data1) => {
             if (err) {
               return util.sendJson(
@@ -170,17 +184,15 @@ export default class Document {
               studentName: userName,
               type,
               documentPermissions: data1.rows[0].documentPermissions,
-              file
-            }
+              file,
+            };
 
             return util.sendJson(
               res,
               { error: false, document: [sendData] },
               200
             );
-          })
-
-
+          });
         });
       } catch (err) {
         console.log(err);
@@ -728,14 +740,32 @@ export default class Document {
                                 );
                               }
 
-                              return util.sendJson(
-                                res,
-                                {
-                                  error: false,
-                                  message: "document submitted successfully.",
-                                },
-                                200
-                              );
+                              // insert into notification table
+                              const id = util.genId()
+                              const joined = util.formatDate()
+                              const isSeen = false;
+                              const type = "document added"
+                              const message = `You were added in behalf of a ${documentType === "CF" ? "Course Form Document" : "Final Project Document"} `
+
+                              const q4 = `INSERT INTO notifications(id, "userId","staffId",message,"isSeen", type, "issued_at") VALUES($1,$2,$3,$4,$5,$6,$7)`
+                              db.query(q4, [id, schoolOfficer.trim(), userId.trim(), message, isSeen, type, joined], (err) => {
+                                if (err) {
+                                  return util.sendJson(
+                                    res,
+                                    { error: true, message: err.message },
+                                    400
+                                  );
+                                }
+
+                                return util.sendJson(
+                                  res,
+                                  {
+                                    error: false,
+                                    message: "document submitted successfully.",
+                                  },
+                                  200
+                                );
+                              })
                             }
                           );
                         }
@@ -1085,14 +1115,35 @@ export default class Document {
                           );
                         }
 
-                        return util.sendJson(
-                          res,
-                          {
-                            error: false,
-                            message: "document submitted successfully.",
-                          },
-                          200
-                        );
+                        // send notification
+                        // insert into notification table
+                        const id = util.genId()
+                        const joined = util.formatDate()
+                        const isSeen = false;
+                        const type = "document added"
+                        const message = `You were added in behalf of a ${documentType === "CF" ? "Course Form Document" : "Final Project Document"} `
+
+                        const q4 = `INSERT INTO notifications(id, "userId","staffId",message,"isSeen", type, "issued_at") VALUES($1,$2,$3,$4,$5,$6,$7)`
+                        db.query(q4, [id, schoolOfficer.trim(), userId.trim(), message, isSeen, type, joined], (err) => {
+                          if (err) {
+                            return util.sendJson(
+                              res,
+                              { error: true, message: err.message },
+                              400
+                            );
+                          }
+
+                          return util.sendJson(
+                            res,
+                            {
+                              error: false,
+                              message: "document submitted successfully.",
+                            },
+                            200
+                          );
+                        })
+
+
                       }
                     );
                   }
@@ -1892,29 +1943,41 @@ export default class Document {
                   );
                 }
 
-                const sql4 = `DELETE FROM documents WHERE id=$1 AND "userId"=$2 AND "documentType"=$3`;
-                db.query(
-                  sql4,
-                  [documentId.trim(), userId.trim(), documentType.trim()],
-                  (err) => {
-                    if (err) {
-                      return util.sendJson(
-                        res,
-                        { error: true, message: err.message },
-                        400
-                      );
-                    }
-
+                // delete signature based on the documentId
+                const delSignature = `DELETE FROM signatures WHERE "documentId"=$1`;
+                db.query(delSignature, [documentId.trim()], (err) => {
+                  if (err) {
                     return util.sendJson(
                       res,
-                      {
-                        error: false,
-                        message: "document deleted successfully.",
-                      },
-                      200
+                      { error: true, message: err.message },
+                      400
                     );
                   }
-                );
+
+                  const sql4 = `DELETE FROM documents WHERE id=$1 AND "userId"=$2 AND "documentType"=$3`;
+                  db.query(
+                    sql4,
+                    [documentId.trim(), userId.trim(), documentType.trim()],
+                    (err) => {
+                      if (err) {
+                        return util.sendJson(
+                          res,
+                          { error: true, message: err.message },
+                          400
+                        );
+                      }
+
+                      return util.sendJson(
+                        res,
+                        {
+                          error: false,
+                          message: "document deleted successfully.",
+                        },
+                        200
+                      );
+                    }
+                  );
+                });
               });
             }
           );
@@ -2321,418 +2384,6 @@ export default class Document {
                 }
               );
             });
-          });
-        });
-      } catch (err) {
-        console.log(err);
-        return util.sendJson(res, { error: true, message: err.message }, 500);
-      }
-    }
-  }
-
-  approveDocument(res, payload) {
-    if (res === "" || res === undefined || res === null) {
-      return "approving documents requires a valid {res} object but got none";
-    }
-
-    if (payload && Object.entries(payload).length > 0) {
-      if (
-        payload.staffId === undefined ||
-        payload.documentId === undefined ||
-        payload.documentType === undefined
-      ) {
-        return util.sendJson(
-          res,
-          {
-            error: true,
-            message:
-              "payload requires a valid fields [staffId,documentId, documentType] but got undefined",
-          },
-          400
-        );
-      }
-
-      if (payload.staffId === "") {
-        return util.sendJson(
-          res,
-          { error: true, message: "staffId cant be empty" },
-          400
-        );
-      }
-      if (payload.documentId === "") {
-        return util.sendJson(
-          res,
-          { error: true, message: "documentId cant be empty" },
-          400
-        );
-      }
-      if (payload.documentType === "") {
-        return util.sendJson(
-          res,
-          { error: true, message: "documentType cant be empty" },
-          400
-        );
-      }
-
-      const validType = ["CF", "FYP"];
-
-      if (!validType.includes(payload.documentType)) {
-        return util.sendJson(
-          res,
-          {
-            error: true,
-            message: `documentType [${payload.documentType}] is invalid`,
-          },
-          400
-        );
-      }
-
-      // check if user exist
-      try {
-        const sql = `SELECT * FROM users WHERE "userId"=$1`;
-        db.query(sql, [payload.staffId.trim()], (err, result) => {
-          if (err) {
-            return util.sendJson(
-              res,
-              { error: true, message: err.message },
-              400
-            );
-          }
-
-          if (result.rowCount === 0) {
-            return util.sendJson(
-              res,
-              {
-                error: true,
-                message: "failed to approve document: user doesnt exist",
-              },
-              400
-            );
-          }
-
-          // check if user submitting document isnt a student
-          if (result.rows[0].type === "student") {
-            return util.sendJson(
-              res,
-              {
-                error: true,
-                message: "only staff are meant to approve document not student",
-              },
-              403
-            );
-          }
-
-          // check if staff/cordinator exists
-          db.query(sql, [payload.staffId.trim()], (err, data1) => {
-            if (err) {
-              return util.sendJson(
-                res,
-                { error: true, message: err.message },
-                400
-              );
-            }
-
-            if (data1.rowCount === 0) {
-              return util.sendJson(
-                res,
-                {
-                  error: true,
-                  message:
-                    "failed to approve document: cordinator doesnt exists",
-                },
-                404
-              );
-            }
-
-            // check if document exists
-            const sql3 = `SELECT * FROM documents WHERE id=$1 AND "documentType"=$2`;
-            db.query(
-              sql3,
-              [payload.documentId.trim(), payload.documentType.trim()],
-              (err, data4) => {
-                if (err) {
-                  return util.sendJson(
-                    res,
-                    { error: true, message: err.message },
-                    400
-                  );
-                }
-
-                if (data4.rowCount === 0) {
-                  return util.sendJson(
-                    res,
-                    {
-                      error: true,
-                      message: "document youre trying to approve doesnt exist.",
-                    },
-                    404
-                  );
-                }
-
-                const { documentId, documentType, staffId } = payload;
-
-                // make sure staff who wanna approve document, that document must be assgined to them
-                if (data4.rows[0].staffId !== staffId) {
-                  return util.sendJson(
-                    res,
-                    {
-                      error: true,
-                      message:
-                        "you dont have permission to approve document which wasnt posted in behalf of you.",
-                    },
-                    403
-                  );
-                }
-
-                // check if staff has permission to approve document
-                if (
-                  data1.rows[0].documentPermissions === 1 &&
-                  documentType === "CF"
-                ) {
-                  return util.sendJson(
-                    res,
-                    {
-                      error: true,
-                      message:
-                        "you dont have permission to approve course form document.",
-                    },
-                    403
-                  );
-                }
-                const status = "approved";
-
-                const sql4 = `UPDATE documents SET status=$1 WHERE id=$2 AND "documentType"=$3`;
-                db.query(
-                  sql4,
-                  [status, documentId.trim(), documentType.trim()],
-                  (err) => {
-                    if (err) {
-                      return util.sendJson(
-                        res,
-                        { error: true, message: err.message },
-                        400
-                      );
-                    }
-
-                    return util.sendJson(
-                      res,
-                      {
-                        error: false,
-                        message: "Document approved successfully.",
-                      },
-                      200
-                    );
-                  }
-                );
-              }
-            );
-          });
-        });
-      } catch (err) {
-        console.log(err);
-        return util.sendJson(res, { error: true, message: err.message }, 500);
-      }
-    }
-  }
-
-  rejectDocument(res, payload) {
-    if (res === "" || res === undefined || res === null) {
-      return "rejecting documents requires a valid {res} object but got none";
-    }
-
-    if (payload && Object.entries(payload).length > 0) {
-      if (
-        payload.staffId === undefined ||
-        payload.documentId === undefined ||
-        payload.documentType === undefined
-      ) {
-        return util.sendJson(
-          res,
-          {
-            error: true,
-            message:
-              "payload requires a valid fields [staffId,documentId, documentType] but got undefined",
-          },
-          400
-        );
-      }
-
-      if (payload.staffId === "") {
-        return util.sendJson(
-          res,
-          { error: true, message: "staffId cant be empty" },
-          400
-        );
-      }
-      if (payload.documentId === "") {
-        return util.sendJson(
-          res,
-          { error: true, message: "documentId cant be empty" },
-          400
-        );
-      }
-      if (payload.documentType === "") {
-        return util.sendJson(
-          res,
-          { error: true, message: "documentType cant be empty" },
-          400
-        );
-      }
-
-      const validType = ["CF", "FYP"];
-
-      if (!validType.includes(payload.documentType)) {
-        return util.sendJson(
-          res,
-          {
-            error: true,
-            message: `documentType [${payload.documentType}] is invalid`,
-          },
-          400
-        );
-      }
-
-      // check if user exist
-      try {
-        const sql = `SELECT * FROM users WHERE "userId"=$1`;
-        db.query(sql, [payload.staffId.trim()], (err, result) => {
-          if (err) {
-            return util.sendJson(
-              res,
-              { error: true, message: err.message },
-              400
-            );
-          }
-
-          if (result.rowCount === 0) {
-            return util.sendJson(
-              res,
-              {
-                error: true,
-                message: "failed to reject document: user doesnt exist",
-              },
-              400
-            );
-          }
-
-          // check if user submitting document isnt a student
-          if (result.rows[0].type === "student") {
-            return util.sendJson(
-              res,
-              {
-                error: true,
-                message: "only staff are meant to reject document not student",
-              },
-              403
-            );
-          }
-
-          // check if staff/cordinator exists
-          db.query(sql, [payload.staffId.trim()], (err, data1) => {
-            if (err) {
-              return util.sendJson(
-                res,
-                { error: true, message: err.message },
-                400
-              );
-            }
-
-            if (data1.rowCount === 0) {
-              return util.sendJson(
-                res,
-                {
-                  error: true,
-                  message:
-                    "failed to reject document: cordinator doesnt exists",
-                },
-                404
-              );
-            }
-
-            // check if document exists
-            const sql3 = `SELECT * FROM documents WHERE id=$1 AND "documentType"=$2`;
-            db.query(
-              sql3,
-              [payload.documentId.trim(), payload.documentType.trim()],
-              (err, data4) => {
-                if (err) {
-                  return util.sendJson(
-                    res,
-                    { error: true, message: err.message },
-                    400
-                  );
-                }
-
-                if (data4.rowCount === 0) {
-                  return util.sendJson(
-                    res,
-                    {
-                      error: true,
-                      message: "document youre trying to approve doesnt exist.",
-                    },
-                    404
-                  );
-                }
-
-                // save feedback in database
-                const { documentId, documentType, staffId } = payload;
-
-                // make sure staff who wanna approve document, that document must be assgined to them
-                if (data4.rows[0].staffId !== staffId) {
-                  return util.sendJson(
-                    res,
-                    {
-                      error: true,
-                      message:
-                        "you dont have permission to reject document which wasnt posted in behalf of you.",
-                    },
-                    403
-                  );
-                }
-
-                // check if staff has permission to approve document
-                if (
-                  data1.rows[0].documentPermissions === 1 &&
-                  documentType === "CF"
-                ) {
-                  return util.sendJson(
-                    res,
-                    {
-                      error: true,
-                      message:
-                        "you dont have permission to reject course form document.",
-                    },
-                    403
-                  );
-                }
-
-                const status = "rejected";
-
-                const sql4 = `UPDATE documents SET status=$1 WHERE id=$2 AND "documentType"=$3`;
-                db.query(
-                  sql4,
-                  [status, documentId.trim(), documentType.trim()],
-                  (err) => {
-                    if (err) {
-                      return util.sendJson(
-                        res,
-                        { error: true, message: err.message },
-                        400
-                      );
-                    }
-
-                    return util.sendJson(
-                      res,
-                      {
-                        error: false,
-                        message: "Document rejected successfully.",
-                      },
-                      200
-                    );
-                  }
-                );
-              }
-            );
           });
         });
       } catch (err) {
