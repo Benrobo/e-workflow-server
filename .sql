@@ -84,7 +84,7 @@ CREATE TABLE "codes"(
 CREATE TABLE "notifications"(
     "id" TEXT NOT NULL  unique primary key,
     "userId" TEXT NOT NULL,
-    "staffId" TEXT [],
+    "staffId" TEXT,
     "message" TEXT NOT NULL,
     "isSeen" TEXT NOT NULL,
     "type" TEXT NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE "signatures"(
     "id" TEXT NOT NULL  unique primary key,
     "documentId" TEXT NOT NULL,
     "staffId" TEXT NOT NULL,
+    "image" TEXT NOT NULL,
     "documentType" TEXT NOT NULL,
-    "hash" TEXT NOT NULL,
     "issued_at" TEXT NOT NULL
 );
